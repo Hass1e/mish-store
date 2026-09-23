@@ -1,0 +1,191 @@
+.cart-items {
+  flex: 1;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: 800px;
+  display: block;
+
+@media (max-width: 768px){
+
+    width: 100%;
+  }
+}
+
+.cart-items__title {
+  margin: 0 0 24px;
+  font-size: 24px;
+  color: #222;
+}
+
+.cart-items__list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.cart-item:hover {
+  background: #f0f0f0;
+}
+
+.cart-item--loading {
+  justify-content: center;
+  color: #888;
+}
+
+.cart-item__image {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cart-item__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cart-item__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+.cart-item__price {
+  font-size: 14px;
+  color: #ec2828;
+  font-weight: 700;
+}
+
+.cart-item__quantity {
+  display: flex;
+  align-items: center;
+}
+
+.cart-item__qty {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.cart-item__remove {
+  width: 36px;
+  height: 36px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.cart-item__remove:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.cart-item__remove-icon {
+  width: 18px;
+  height: 18px;
+  filter: invert(40%);
+  transition: filter 0.2s;
+}
+
+.cart-item__remove:hover .cart-item__remove-icon {
+  filter: invert(20%) sepia(85%) saturate(7480%) hue-rotate(355deg) brightness(95%) contrast(105%);
+}
+
+@media (max-width: 768px) {
+
+
+  .cart-item__image {
+    width: 60px;
+    height: 75px;
+  }
+}
+
+/* ==========================================
+   КНОПКИ +/- ДЛЯ КОЛИЧЕСТВА В КОРЗИНЕ
+============================================= */
+
+.cart-item__quantity-controls {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 36px;
+}
+
+.cart-item__qty-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  color: #3b82f6; /* Синий цвет как у основных кнопок */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.cart-item__qty-btn:hover {
+  background: #eff6ff; /* Очень светлый синий при наведении */
+  color: #2563eb;
+}
+
+.cart-item__qty-btn:active {
+  background: #dbeafe;
+  transform: scale(0.95);
+}
+
+/* Делаем минус чуть красным при наведении, чтобы ассоциировался с удалением */
+.cart-item__qty-btn--minus:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.cart-item__qty-value {
+  min-width: 32px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  user-select: none; /* Чтобы текст не выделялся при быстрых кликах */
+}
+
+/* Адаптив для мобильных: кнопки остаются удобными для пальца */
+@media (max-width: 768px) {
+  .cart-item__quantity-controls {
+    height: 40px;
+  }
+  
+  .cart-item__qty-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+}

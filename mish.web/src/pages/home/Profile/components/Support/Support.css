@@ -1,0 +1,30 @@
+.support {
+  max-width: 600px;
+}
+
+.section-title {
+  margin: 0 0 24px;
+  font-size: 24px;
+  color: #222;
+}
+
+.support-content {
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+}
+
+.support-content p {
+  margin: 0 0 12px;
+  color: #555;
+}
+
+.support-email {
+  color: #e91e63;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.support-email:hover {
+  text-decoration: underline;
+}

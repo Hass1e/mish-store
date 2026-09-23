@@ -1,0 +1,25 @@
+
+.admin-tool-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #1a1919;
+
+}
+
+.admin-tool {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+    text-align: center;
+}
+.text 
+{
+  text-align: center;
+  font-size: 18px;
+  color: #b56804;
+  margin-top: 50px;
+  margin-bottom: 32px;
+}

@@ -1,0 +1,17 @@
+.orders {
+  max-width: 600px;
+}
+
+.section-title {
+  margin: 0 0 24px;
+  font-size: 24px;
+  color: #222;
+}
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #888;
+  background: #f9f9f9;
+  border-radius: 12px;
+}

@@ -1,0 +1,38 @@
+/* Длинная полоса у правого края экрана, как в ВК */
+.scroll-to-top-band {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100px;              /* Ширина чувствительной зоны полосы */
+  height: 100vh;            /* Во всю высоту экрана */
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 99;            /* Поверх всех элементов */
+  display: flex;
+  align-items: center;      /* Стрелочка по центру высоты */
+  justify-content: center;
+  transition: background-color 0.2s ease;
+
+  @media (max-width: 768px) {
+    width: 60px; /* На мобильных устройствах делаем полосу уже */
+  }
+}
+
+/* Эффект при наведении — полоса слегка темнеет/подсвечивается */
+.scroll-to-top-band:hover {
+  background-color: rgba(0, 0, 0, 0.05); /* Легкий темный фон (для светлой темы) */
+}
+
+/* Стрелочка внутри полосы */
+.scroll-arrow {
+  font-size: 20px;
+  color: #555555;
+  opacity: 0.3;               /* В обычном состоянии стрелку не видно */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Показываем стрелочку только при наведении на полосу */
+.scroll-to-top-band:hover .scroll-arrow {
+  opacity: 1;
+  transform: translateY(-5px); /* Стрелка чуть приподнимается */
+}

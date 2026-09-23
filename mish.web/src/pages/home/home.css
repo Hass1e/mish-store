@@ -1,0 +1,36 @@
+
+
+.home
+{
+
+
+
+ user-select: none;   
+ -webkit-user-select: none; /* Для Safari */
+  -moz-user-select: none;    /* Для старых версий Firefox */
+  -ms-user-select: none;     /* Для Internet Explorer/Edge */
+
+
+}
+
+.slider
+{
+width: 100%;
+max-width: 2000px;
+
+position: relative;
+
+}
+
+.slider>img
+{
+position: absolute;
+left: 0; top: 0;
+transition: all 1s;
+}
+
+.slider input[name='slide_switch']
+{
+display: none;
+
+}

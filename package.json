@@ -1,0 +1,16 @@
+{
+  "name": "my-fullstack-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"cd Mish.Api && dotnet run\" \"cd mish.web && npm run dev\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "react-router-dom": "^7.18.3"
+  }
+}

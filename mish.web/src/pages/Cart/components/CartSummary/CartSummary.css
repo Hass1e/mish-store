@@ -1,0 +1,120 @@
+.cart-summary {
+  width: 320px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 40px;
+
+  @media (max-width: 900px)
+  {
+    width: 260px;
+  }
+}
+
+.cart-summary__title {
+  margin: 0 0 24px;
+  font-size: 24px;
+  color: #222;
+}
+
+.cart-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.cart-summary__label {
+  font-size: 14px;
+  color: #666;
+}
+
+.cart-summary__value {
+  font-size: 14px;
+  color: #222;
+  font-weight: 500;
+}
+
+.cart-summary__divider {
+  height: 1px;
+  background: #eee;
+  margin: 16px 0;
+}
+
+.cart-summary__row--total .cart-summary__label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+.cart-summary__row--total .cart-summary__value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+}
+
+.cart-summary__btn {
+  width: 100%;
+  height: 48px;
+  margin-top: 24px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cart-summary__btn:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.cart-summary__btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.cart-summary__btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.cart-summary__btn--success {
+  background: #10b981;
+}
+
+.cart-summary__note {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+}
+
+.cart-summary__note a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.cart-summary__note a:hover {
+  text-decoration: underline;
+}
+.cart-summary__btn--login {
+  background: #f59e0b; /* Янтарный цвет, привлекающий внимание */
+}
+
+.cart-summary__btn--login:hover:not(:disabled) {
+  background: #d97706;
+}
+
+
+@media (max-width: 768px) {
+  .cart-summary {
+    width: 100%;
+    position: static;
+
+  }
+}
