@@ -1,0 +1,83 @@
+.admin-tool {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.admin-tool__title {
+  margin: 0 0 24px;
+  font-size: 24px;
+  color: #222;
+  text-align: center;
+}
+
+.admin-tool__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-tool__input,
+.admin-tool__select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.admin-tool__input:focus,
+.admin-tool__select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.admin-tool__btn {
+  width: 100%;
+  padding: 14px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.admin-tool__btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.admin-tool__btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.admin-tool__btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.admin-tool__message {
+  margin: 16px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.admin-tool__message--success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.admin-tool__message--error {
+  background: #fee2e2;
+  color: #991b1b;
+}

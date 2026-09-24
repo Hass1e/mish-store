@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Mish.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1611dea602494849e385fb529ef8cfc06411e6a1")]
 [assembly: System.Reflection.AssemblyProductAttribute("Mish.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Mish.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

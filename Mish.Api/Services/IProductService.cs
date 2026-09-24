@@ -17,7 +17,7 @@ public interface IProductService
     Task<ProductDetailDto> CreateAsync(CreateProductRequest request, IFormFile[]? images);
     
     // Обновление
-    Task<bool> UpdateAsync(int id, Product product);
+    Task<bool> UpdateAsync(int id, UpdateProductRequest request);
     
     // Удаление
     Task<bool> DeleteAsync(int id);

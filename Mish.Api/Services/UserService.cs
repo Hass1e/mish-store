@@ -40,4 +40,19 @@ public class UserService : IUserService  // ← Имя должно быть Т�
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<(bool RoleExists, bool UserExists)> ChangeRoleAsync(string username, int roleId)
+    {
+        var role = await _context.Roles.FindAsync(roleId);
+        if (role == null)
+            return (false, false);
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        if (user == null)
+            return (true, false);
+
+        user.Role = role.Name;
+        await _context.SaveChangesAsync();
+        return (true, true);
+    }
 }

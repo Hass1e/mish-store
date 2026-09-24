@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Mish.Api.Services;
 using Mish.Api.Models;
 using Mish.Api.Dtos;
+using Mish.Api.Extensions;  
 
 namespace Mish.Api.Controllers;
 
@@ -50,13 +51,14 @@ public class ProductsController : ControllerBase
     }
 
 //////////////////////////////////////////////////////////////
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, Product product)
-    {
-        var success = await _productService.UpdateAsync(id, product);
-        if (!success) return BadRequest();
-        return NoContent();
-    }
+[HttpPut("{id:int}")]
+[RequirePermission("products.edit_any")]
+public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequest request)
+{
+    var success = await _productService.UpdateAsync(id, request);
+    if (!success) return NotFound();
+    return NoContent();
+}
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)

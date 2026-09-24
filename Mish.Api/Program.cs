@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Threading.Tasks;
+using Mish.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,7 +94,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 
 
-
+builder.Services.AddPermissionPolicies();
 
 var app = builder.Build();
 // Твой CORS middleware - оставляем!
@@ -168,10 +169,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection(); // ← Эта строка может перенаправлять HTTP на HTTPS, что ломает Safari
-// ... остальной middleware
 
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DbSeeder.SeedAsync(db);
+}
 
 app.Run();

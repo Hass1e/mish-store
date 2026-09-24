@@ -138,17 +138,29 @@ public class ProductService : IProductService
         };
     }
 
-    public async Task<bool> UpdateAsync(int id, Product product)
+    public async Task<bool> UpdateAsync(int id, UpdateProductRequest request)
     {
-        if (id != product.Id) return false;
-        _context.Entry(product).State = EntityState.Modified;
-        try {
-            await _context.SaveChangesAsync();
-            return true;
-        } catch (DbUpdateConcurrencyException) {
-            if (!await _context.Products.AnyAsync(e => e.Id == id)) return false;
-            throw;
-        }
+        var product = await _context.Products.FindAsync(id);
+        if (product == null) return false;
+
+        product.Name = request.Name.Trim();
+        product.Price = request.Price;
+        product.OldPrice = request.OldPrice;
+        product.Description = request.Description;
+        product.Composition = request.Composition ?? string.Empty;
+        product.ImageUrls = request.ImageUrls ?? product.ImageUrls;
+        product.Tags = request.Tags ?? product.Tags;
+        product.Weight = request.Weight;
+        product.Stock = request.Stock;
+        product.IsActive = request.IsActive;
+        product.IsNew = request.IsNew;
+        product.IsHit = request.IsHit;
+        product.CategoryId = request.CategoryId;
+        //product.CategoryName = request.CategoryName;
+        product.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteAsync(int id)

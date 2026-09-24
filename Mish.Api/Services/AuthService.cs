@@ -51,6 +51,7 @@ public class AuthService : IAuthService
 
     // 1. Поиск пользователя
     var user = await _context.Users
+       
         .FirstOrDefaultAsync(u => u.Username.ToLower() == normalizedUsername);
 
     if (user is null)
@@ -61,7 +62,7 @@ public class AuthService : IAuthService
         throw new UnauthorizedAccessException("Неверное имя пользователя или пароль");
 
     // 3. Генерация токена
-    var token = GenerateJwtToken(user);
+    var token = await GenerateJwtToken(user);
     var expirationMinutes = int.Parse(_configuration["JwtSettings:AccessTokenExpirationMinutes"]!);
 
     return new AuthResponse(
@@ -73,38 +74,50 @@ public class AuthService : IAuthService
     );
 }
 
-    public Task<User?> GetByIdAsync(int userId)
+    public Task<User?> GetByIdAsync(int userId) 
     {
         return _context.Users.AsNoTracking().FirstOrDefaultAsync(user => user.Id == userId);
     }
+// ← ДОБАВЬ async Task<string> ВМЕСТО string
+private async Task<string> GenerateJwtToken(User user)
+{
+    var jwtSettings = _configuration.GetSection("JwtSettings");
+    var secretKey = new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!)
+    );
+    var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
-    private string GenerateJwtToken(User user)
+        Console.WriteLine($"[DEBUG] Генерация токена для: {user.Username}, Роль из БД: {user.Role}");
+
+    var permissions = await _context.RolePermissions
+        .Where(rp => rp.Role.Name == user.Role) // Сравниваем строки!
+        .Select(rp => rp.Permission.Name)
+        .ToListAsync();
+
+            Console.WriteLine($"[DEBUG] Найдено прав для роли '{user.Role}': {string.Join(", ", permissions)}");
+
+    var claims = new List<Claim>
     {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
-        var secretKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!)
-        );
-        var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.Username),
+        new Claim(ClaimTypes.Role, user.Role),
+        new Claim(JwtRegisteredClaimNames.Iat, 
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), 
+            ClaimValueTypes.Integer64),
+            
+        // Добавляем права в токен
+        new Claim("permissions", string.Join(",", permissions)) 
+    };
 
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role),
-            new Claim(JwtRegisteredClaimNames.Iat, 
-                DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), 
-                ClaimValueTypes.Integer64)
-        };
+    var token = new JwtSecurityToken(
+        issuer: jwtSettings["Issuer"],
+        audience: jwtSettings["Audience"],
+        claims: claims,
+        expires: DateTime.UtcNow.AddMinutes(
+            int.Parse(jwtSettings["AccessTokenExpirationMinutes"]!)),
+        signingCredentials: credentials
+    );
 
-        var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(
-                int.Parse(jwtSettings["AccessTokenExpirationMinutes"]!)),
-            signingCredentials: credentials
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
 }

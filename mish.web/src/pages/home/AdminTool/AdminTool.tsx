@@ -11,14 +11,19 @@
             <p>Выберите действие из меню ниже:</p>
       <div className="text">         
 <li>
-  <Link to="/products/create">Create product</Link>
+  <Link to="/products/create">Создание товара</Link>
 </li>  
+<li>
+  <a href="http://localhost:5173/change-roles" target="_blank" rel="noreferrer">Смена роли</a> 
+</li>
 <li>
   <a href="http://localhost:5073/swagger" target="_blank" rel="noreferrer">Swagger</a> 
 </li>
 <li>
   <a href="http://localhost:5073/api/auth/debug-cookies" target="_blank" rel="noreferrer">Debug Cookies</a> 
 </li>
+
+
 
 
            </div>

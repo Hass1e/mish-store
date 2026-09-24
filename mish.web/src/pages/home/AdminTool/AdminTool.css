@@ -1,7 +1,7 @@
 
 .admin-tool-container {
   display: flex;
-  flex-direction: column;
+  
   align-items: center;
   justify-content: center;
   background-color: #1a1919;
@@ -22,4 +22,9 @@
   color: #b56804;
   margin-top: 50px;
   margin-bottom: 32px;
+}
+
+.text li {
+  list-style: none;
+  margin-bottom: 8px;
 }

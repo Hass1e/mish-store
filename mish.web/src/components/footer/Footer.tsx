@@ -1,16 +1,23 @@
 import "./Footer.css";
 import { Link } from "react-router-dom";
+import { usePermissions } from '../../hooks/usePermissions'; // Убедись, что путь правильный
+
+
 
 export function Footer() {
+
+  const { hasPermission } = usePermissions();
+
   return (
     <footer className="site-footer">
       <div className="footer-content">
         <div className="footer-section">
           <h3>О нас</h3>
           <p>Краткая информация о компании или проекте.</p>
-            <Link to="/atool" style={{ margin: "110px" }}>
-              Create product
-            </Link>
+          {hasPermission('products.create') && (
+          <Link to="/atool" style={{ margin: "110px" }}>
+          Create product
+          </Link> )}
         </div>
 
         <div className="footer-section">

@@ -3,7 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useCartContext } from '../CartContext.tsx';
 import { useAuth } from '../../../../context/AuthContext';
 import './CartSummary.css';
+//import AuthModal from '../../../../components/AuthModal/AuthModal.tsx'
 
+
+//function LoginPage() {
+ //const navigate = useNavigate()
+
+  //return <AuthModal isOpen={true} onClose={() => navigate('/')} />
+//}
 export function CartSummary() {
   const { cart } = useCartContext();
   const { isAuthenticated } = useAuth();

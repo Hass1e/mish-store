@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mish.Api.Services;
+using Mish.Api.Dtos;
 using System.Security.Claims;
-
+using Mish.Api.Extensions;
 namespace Mish.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -74,6 +76,10 @@ public class UsersController : ControllerBase
         
         return Ok(new { message = "Аккаунт удален" });
     }
+
+
+     
+
 }
 
 public class ChangePasswordRequest
