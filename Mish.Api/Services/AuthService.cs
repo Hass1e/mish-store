@@ -30,6 +30,7 @@ public class AuthService : IAuthService
             throw new ArgumentException("Пользователь с таким именем уже существует");
 
         string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12); 
+        // Создаем хеш с солью
 
         var user = new User
         {

@@ -30,6 +30,9 @@ public class Product
     public int Stock { get; set; } = 0; // Количество товара на складе
     public int Rating { get; set; } = 0; // Средний рейтинг товара (например, от 1 до 5)
     public int Reviews { get; set; } = 0; // Количество отзывов о товаре
+
+    public ICollection<ProductSeller> ProductSellers { get; set; } = new List<ProductSeller>();
+
     
     // Аудит
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -20,4 +20,5 @@ public class UpdateProductRequest
     public int CategoryId { get; set; }
     // ❌ Никаких Id, CreatedAt, ImageUrls, Tags! 
     // Картинки и теги обновляются через отдельные эндпоинты или сервисы
+    public List<string>? ExistingImages { get; set; }
 }

@@ -212,6 +212,28 @@ namespace Mish.Api.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("ProductSeller", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SellerId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleInProduct")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ProductId", "SellerId");
+
+                    b.HasIndex("SellerId");
+
+                    b.ToTable("ProductSellers");
+                });
+
             modelBuilder.Entity("Mish.Api.Models.CartItem", b =>
                 {
                     b.HasOne("Mish.Api.Models.Product", "Product")
@@ -250,9 +272,33 @@ namespace Mish.Api.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("ProductSeller", b =>
+                {
+                    b.HasOne("Mish.Api.Models.Product", "Product")
+                        .WithMany("ProductSellers")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Mish.Api.Models.User", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Seller");
+                });
+
             modelBuilder.Entity("Mish.Api.Models.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("Mish.Api.Models.Product", b =>
+                {
+                    b.Navigation("ProductSellers");
                 });
 
             modelBuilder.Entity("Mish.Api.Models.Role", b =>

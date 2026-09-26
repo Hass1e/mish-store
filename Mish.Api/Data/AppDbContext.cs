@@ -59,6 +59,21 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         .WithMany(p => p.RolePermissions)
         .HasForeignKey(rp => rp.PermissionId)
         .OnDelete(DeleteBehavior.Restrict); // Не удаляем право, если оно используется
+
+          modelBuilder.Entity<ProductSeller>()
+        .HasKey(ps => new { ps.ProductId, ps.SellerId }); // Явный составной ключ
+
+    modelBuilder.Entity<ProductSeller>()
+        .HasOne(ps => ps.Product)
+        .WithMany(p => p.ProductSellers)
+        .HasForeignKey(ps => ps.ProductId)
+        .OnDelete(DeleteBehavior.Cascade); // При удалении товара удаляются связи
+
+    modelBuilder.Entity<ProductSeller>()
+        .HasOne(ps => ps.Seller)
+        .WithMany() // У User может не быть навигации ProductSellers, это нормально
+        .HasForeignKey(ps => ps.SellerId)
+        .OnDelete(DeleteBehavior.Restrict); // Не удаляем продавца, если у него есть товары
 }
 
 
