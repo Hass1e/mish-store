@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './ProductCard.css';
 import { ENDPOINTS } from '../../config.tsx';
-import { useCart } from '../../hooks/useCart'; // <-- Импортируем хук
+import { ProductCartActions } from '../ProductCartActions/ProductCartActions';
 
-interface ProductImage {
+export interface ProductImage {
   id: number;
   url: string;
   alt: string;
@@ -27,12 +27,7 @@ export function ProductCard({
   images,
   link
 }: ProductCardProps) {
-  const navigate = useNavigate();
-  const { addToCart, removeFromCart, isInCart } = useCart(); // <-- Используем хук
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const isAdded = isInCart(id); // <-- Проверяем через хук
 
   const currentImage = images[currentImgIndex] || images[0];
   const imageUrl = currentImage?.url
@@ -40,48 +35,6 @@ export function ProductCard({
         ? currentImage.url
         : `${ENDPOINTS.UPLOADS}${currentImage.url.replace('/uploads', '')}`)
     : `${ENDPOINTS.UPLOADS}/placeholder.jpg`;
-
-  const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (isLoading) return;
-
-    setIsLoading(true);
-    try {
-      // Передаем данные товара, чтобы гостевая корзина могла посчитать сумму
-      await addToCart(id, 1, {
-        productName: title,
-        price: price,
-        imageUrl: currentImage?.url
-      });
-    } catch (error) {
-      console.error('Ошибка при добавлении в корзину:', error);
-      alert('Не удалось добавить товар');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRemoveFromCart = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (isLoading) return;
-
-    setIsLoading(true);
-    try {
-      await removeFromCart(id);
-    } catch (error) {
-      console.error('Ошибка при удалении из корзины:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    navigate('/cart');
-  };
 
   return (
     <article className="product-card">
@@ -107,28 +60,13 @@ export function ProductCard({
             )}
           </div>
 
-          <div className="product-card__actions">
-            <button
-              type="button"
-              className={`product-card__add-btn ${isAdded ? 'product-card__add-btn--added' : ''}`}
-              onClick={isAdded ? handleGoToCart : handleAddToCart}
-              disabled={isLoading}
-            >
-              {isLoading ? '...' : (isAdded ? 'В корзине' : 'В корзину')}
-            </button>
-
-            {isAdded && (
-              <button
-                type="button"
-                className="product-card__remove-btn"
-                onClick={handleRemoveFromCart}
-                disabled={isLoading}
-                aria-label="Удалить из корзины"
-              >
-                <img src="/trash.png" alt="Удалить" className="product-card__remove-icon" />
-              </button>
-            )}
-          </div>
+          <ProductCartActions
+            productId={id}
+            productName={title}
+            price={price}
+            imageUrl={currentImage?.url}
+            variant="card"
+          />
         </div>
       </Link>
     </article>

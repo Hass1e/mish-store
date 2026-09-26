@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './ProductDetail.css';
 import { getProductDetail } from '../../services/productService';
-import type { ProductDetail } from '../../services/types';
-import { ENDPOINTS } from '../../config'; // ✅ Добавили импорт конфига
+import type { ProductDetail as ProductDetailData } from '../../services/types';
+import { ENDPOINTS } from '../../config';
+import { ProductCartActions } from '../ProductCartActions/ProductCartActions';
 
 interface ProductDetailProps {
   productId: number;
 }
 
 export function ProductDetail({ productId }: ProductDetailProps) {
-  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [product, setProduct] = useState<ProductDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -22,9 +22,9 @@ export function ProductDetail({ productId }: ProductDetailProps) {
         setLoading(true);
         setError(null);
         const data = await getProductDetail(productId);
-        
+
         if (isMounted) {
-          setProduct(data as unknown as ProductDetail);
+          setProduct(data as unknown as ProductDetailData);
         }
       } catch (err) {
         if (isMounted) {
@@ -39,6 +39,8 @@ export function ProductDetail({ productId }: ProductDetailProps) {
 
     if (productId) {
       loadData();
+    } else {
+      setLoading(false);
     }
 
     return () => {
@@ -49,13 +51,13 @@ export function ProductDetail({ productId }: ProductDetailProps) {
   if (loading) {
     return <div className="product-page"><div className="loading-spinner">Загрузка данных...</div></div>;
   }
-  
+
   if (error) {
     return (
       <div className="product-page">
         <div className="island-card" style={{ padding: '32px', textAlign: 'center', color: '#dc2626' }}>
           <h2>Не удалось загрузить товар</h2>
-          <p>{error?.message}</p>
+          <p>{error.message}</p>
           <button onClick={() => window.location.reload()} className="buy-button" style={{ marginTop: '16px', maxWidth: '200px' }}>
             Попробовать снова
           </button>
@@ -68,24 +70,17 @@ export function ProductDetail({ productId }: ProductDetailProps) {
     return <div className="product-page">Товар не найден</div>;
   }
 
-  // ✅ ИСПРАВЛЕННАЯ ЛОГИКА: Нормализуем пути ДО рендера
-const images: string[] = (() => {
-  const rawImages = product.imageUrls && product.imageUrls.length > 0 
-    ? product.imageUrls 
-    : [product.mainImageUrl];
+  return <LoadedProductDetail product={product} />;
+}
 
-  return rawImages.map(url => {
-    if (!url) return null;
-    // Если URL уже полный (http/https) - оставляем как есть
-    if (url.startsWith('http')) return url;
-    // Если относительный путь УЖЕ начинается с /uploads - просто добавляем базу
-    if (url.startsWith('/uploads')) return `${ENDPOINTS.UPLOADS}${url.replace(/^\/uploads\/?/, '/')}`;
-    // Для остальных случаев добавляем полный путь к uploads
-    return `${ENDPOINTS.UPLOADS}/${url.replace(/^\//, '')}`;
-  }).filter((url): url is string => url !== null);
-})();
-
-const safeImages = images.length > 0 ? images : [`${ENDPOINTS.UPLOADS}/placeholder.jpg`];
+function LoadedProductDetail({ product }: { product: ProductDetailData }) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const rawImages = product.imageUrls?.length ? product.imageUrls : [product.mainImageUrl];
+  const images = rawImages
+    .filter((url): url is string => Boolean(url))
+    .map(resolveProductImageUrl);
+  const safeImages = images.length > 0 ? images : [`${ENDPOINTS.UPLOADS}/placeholder.jpg`];
+  const currentImage = safeImages[currentImageIndex] ?? safeImages[0];
 
   const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % safeImages.length);
   const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + safeImages.length) % safeImages.length);
@@ -93,46 +88,41 @@ const safeImages = images.length > 0 ? images : [`${ENDPOINTS.UPLOADS}/placehold
   return (
     <div className="product-page">
       <div className="product-grid">
-        
-        {/* ЛЕВЫЙ ОСТРОВОК: Карусель */}
         <div className="island-card">
           <div className="carousel-container">
-            <img
-              src={safeImages[currentImageIndex]}
-              alt={product.name} 
-              className="carousel-image" 
-            />
+            <img src={currentImage} alt={product.name} className="carousel-image" />
             {safeImages.length > 1 && (
               <>
-                <button className="carousel-btn prev" onClick={prevImage} aria-label="Предыдущее фото">
+                <button type="button" className="carousel-btn prev" onClick={prevImage} aria-label="Предыдущее фото">
                   &#10094;
                 </button>
-                <button className="carousel-btn next" onClick={nextImage} aria-label="Следующее фото">
+                <button type="button" className="carousel-btn next" onClick={nextImage} aria-label="Следующее фото">
                   &#10095;
                 </button>
               </>
             )}
           </div>
-          
+
           {safeImages.length > 1 && (
             <div className="thumbnails">
-              {safeImages.map((img, idx) => (
-                <div 
-                  key={idx} 
-                  className={`thumbnail ${currentImageIndex === idx ? 'active' : ''}`}
-                  onClick={() => setCurrentImageIndex(idx)}
+              {safeImages.map((image, index) => (
+                <button
+                  type="button"
+                  key={image}
+                  className={`thumbnail${currentImageIndex === index ? ' active' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
+                  aria-label={`Показать фото ${index + 1}`}
                 >
-                  <img src={img} alt={`Миниатюра ${idx + 1}`} />
-                </div>
+                  <img src={image} alt="" />
+                </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* ПРАВЫЙ ОСТРОВОК: Информация */}
         <div className="island-card product-info">
           <h1 className="product-title">{product.name}</h1>
-          
+
           <div className="rating-block">
             <span className="stars">★ {product.rating}</span>
             <span>|</span>
@@ -140,7 +130,7 @@ const safeImages = images.length > 0 ? images : [`${ENDPOINTS.UPLOADS}/placehold
           </div>
 
           <div className="price-block">
-            {product.oldPrice && (
+            {product.oldPrice != null && product.oldPrice > 0 && (
               <span className="old-price">{product.oldPrice.toLocaleString('ru-RU')} ₽</span>
             )}
             <span className="current-price">{product.price.toLocaleString('ru-RU')} ₽</span>
@@ -148,9 +138,13 @@ const safeImages = images.length > 0 ? images : [`${ENDPOINTS.UPLOADS}/placehold
 
           <p className="product-description">{product.description}</p>
 
-          <button className="buy-button">
-            Добавить в корзину
-          </button>
+          <ProductCartActions
+            productId={product.id}
+            productName={product.name}
+            price={product.price}
+            imageUrl={currentImage}
+            variant="detail"
+          />
 
           <div className="stock-status">
             <span>●</span>
@@ -159,7 +153,6 @@ const safeImages = images.length > 0 ? images : [`${ENDPOINTS.UPLOADS}/placehold
         </div>
       </div>
 
-      {/* НИЖНИЙ ОСТРОВОК: Характеристики */}
       <div className="island-card specs-island" style={{ marginTop: '32px' }}>
         <h2 className="specs-title">Характеристики</h2>
         <div className="specs-grid">
@@ -179,6 +172,16 @@ const safeImages = images.length > 0 ? images : [`${ENDPOINTS.UPLOADS}/placehold
       </div>
     </div>
   );
+}
+
+function resolveProductImageUrl(url: string): string {
+  if (/^(https?:|blob:|data:)/i.test(url)) return url;
+
+  if (url.startsWith('/uploads/')) {
+    return `${ENDPOINTS.UPLOADS}${url.slice('/uploads'.length)}`;
+  }
+
+  return `${ENDPOINTS.UPLOADS}/${url.replace(/^\/+/, '')}`;
 }
 
 export default ProductDetail;

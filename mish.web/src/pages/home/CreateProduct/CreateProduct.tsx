@@ -48,7 +48,7 @@ export function CreateProduct() {
   useEffect(() => {
     if (!success || !isEditMode) return;
 
-    const timeoutId = window.setTimeout(() => navigate('/admin/products'), 2000);
+    const timeoutId = window.setTimeout(() => navigate('/products/'), 2000);
     return () => window.clearTimeout(timeoutId);
   }, [success, isEditMode, navigate]);
 

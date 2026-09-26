@@ -57,9 +57,9 @@ export function ProductManager() {
   if (mode === 'create') {
     return (
       <div className="product-manager">
-        <div className="manager-header">
+        <div className="product-manager__header">
           <h1>Управление товарами</h1>
-          <button onClick={() => setMode('select')} className="btn-secondary">
+          <button onClick={() => setMode('select')} className="product-manager__secondary-button">
              Редактировать существующий
           </button>
         </div>
@@ -71,20 +71,20 @@ export function ProductManager() {
   // Режим выбора товара для редактирования
   return (
     <div className="product-manager">
-      <div className="manager-header">
+      <div className="product-manager__header">
         <h1>Выберите товар для редактирования</h1>
-        <button onClick={() => setMode('create')} className="btn-secondary">
+        <button onClick={() => setMode('create')} className="product-manager__secondary-button">
           ➕ Создать новый товар
         </button>
       </div>
 
-      <div className="search-bar">
+      <div className="product-manager__search-bar">
         <input
           type="text"
           placeholder="Поиск по названию, SKU или ID..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="input search-input"
+          className="product-manager__search-input"
         />
       </div>
 
@@ -97,15 +97,15 @@ export function ProductManager() {
           filteredProducts.map(product => (
             <div 
               key={product.id} 
-              className="product-card"
-              onClick={() => navigate(`/admin/products/${product.id}/edit`)}
+              className="product-manager__product-card"
+              onClick={() => navigate(`/products/${product.id}/edit`)}
             >
-              <div className="product-info">
-                <span className="product-name">{product.name}</span>
-                {product.sku && <span className="product-sku">SKU: {product.sku}</span>}
-                <span className="product-id">ID: {product.id}</span>
+              <div className="product-manager__product-info">
+                <span className="product-manager__product-name">{product.name}</span>
+                {product.sku && <span className="product-manager__product-sku">SKU: {product.sku}</span>}
+                <span className="product-manager__product-id">ID: {product.id}</span>
               </div>
-              <span className="edit-arrow">→</span>
+              <span className="product-manager__edit-arrow">→</span>
             </div>
           ))
         )}

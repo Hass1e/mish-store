@@ -1,0 +1,100 @@
+
+/* Контейнер для кнопок, заменяет margin: auto у старой кнопки */
+.buy_button__actions {
+
+background-color: #2563eb;
+  color: #ffffff;
+  font-size: 1.125rem;
+  font-weight: 700;
+  padding: 18px 32px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.9s, transform 0.9s;
+  width: 100%;
+  max-width: 320px;
+}
+
+/* Основная кнопка (аналог твоей add-to-cart) */
+.buy_button__add-btn {
+  flex: 1; /* Занимает всё доступное место в контейнере */
+  height: 32px;
+  font-size: 14px; /* Чуть компактнее, чтобы текст влезал при сжатии */
+  font-weight: 600;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.buy_button__add-btn:hover:not(:disabled) {
+  background: #2563eb;
+  border-radius: 12px;
+}
+
+.buy_button__add-btn:active:not(:disabled) {
+  transform: scale(0.99);
+  background: #316cc9;
+}
+
+/* Состояние "В корзине": сжимается влево */
+.buy_button__add-btn--added {
+  background: #10b981;
+  flex: 0 0 78%; /* Жестко ограничиваем ширину до ~65%, освобождая место справа */
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.buy_button__add-btn--added:hover {
+  background: #059669;
+}
+
+/* Белая кнопка удаления справа */
+.buy_button__remove-btn {
+  flex: 0 0 32px; /* Фиксированный квадрат 32x32px */
+  height: 32px;
+  background: #ffffff; 
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  
+  /* Скрыта по умолчанию */
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+/* МАГИЯ CSS: когда внутри есть кнопка с классом --added, показываем кнопку удаления */
+.buy_button__actions:has(.buy_button__add-btn--added) .buy_button__remove-btn {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.buy_button__remove-btn:hover {
+  background: #fee2e2; /* Легкий красный оттенок при наведении */
+  border-color: #fecaca;
+}
+
+/* Иконка внутри кнопки удаления */
+.buy_button__remove-icon {
+  width: 16px;
+  height: 16px;
+  /* Делаем иконку серой по умолчанию */
+  /*filter: invert(40%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); */
+  transition: filter 0.2s;
+}
+
+/* При наведении на кнопку удаления иконка становится красной */
+.buy_button__remove-btn:hover .buy_button__remove-icon {
+  filter: invert(20%) sepia(85%) saturate(7480%) hue-rotate(355deg) brightness(95%) contrast(105%);
+}

@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, type ComponentType } from 'react'
 import { createBrowserRouter, RouterProvider, Outlet, useParams, useNavigate, ScrollRestoration } from 'react-router-dom'
 
 import './App.css'
@@ -7,6 +7,7 @@ import { Footer } from './components/footer/Footer.tsx'
 import ScrollToTop from './components/ScrollToTop/ScrollToTop.tsx'
 import { RequirePermission } from './components/Permission/RequirePermission.tsx'
 import { ChangeRoles } from './pages/home/AdminTool/ChangeRoles/ChangeRoles.tsx'
+import { CartProvider } from './pages/Cart/components/CartContext.tsx'
 // 1. Динамические импорты (загрузятся только при переходе на страницу)
 const Home = lazy(() => import('./components/hero_banner/HeroBanner__mass.tsx').then(m => ({ default: m.Home })))
 const Catalog = lazy(() => import('./components/ProductCard/ProductCard_mass.tsx').then(m => ({ default: m.Catalog })))
@@ -17,7 +18,7 @@ const CartPage = lazy(() => import('./pages/Cart/CartPage.tsx').then(m => ({ def
 const AuthModal = lazy(() => import('./components/AuthModal/AuthModal.tsx')) 
 const ProductDetail = lazy(() => import('./components/ProductDetail/ProductDetail.tsx').then(m => ({ default: m.ProductDetail })))
 const ProductManager = lazy(() => import('./pages/home/CreateProduct/ProductManager.tsx').then(m => ({ default: m.ProductManager })))
-
+const Products = lazy(() => import('./pages/Products.tsx').then(m => ({ default: m.Products as ComponentType })))
 // Компонент-заглушка, пока страница скачивается
 const PageLoader = () => <div style={{ minHeight: '50vh' }}>Загрузка...</div>
 
@@ -89,6 +90,10 @@ const router = createBrowserRouter([
                element: <Suspense fallback={<PageLoader />}><CartPage /></Suspense>,
             },
             {
+               path: "/products",
+               element: <Suspense fallback={<PageLoader />}><Products /></Suspense>,
+            },
+            {
               path: "/login",
               element: <Suspense fallback={<PageLoader />}><LoginPage /></Suspense>
             },
@@ -105,14 +110,14 @@ const router = createBrowserRouter([
 
 function Layout() {
   return (
-    <>
+    <CartProvider>
       <Header />
         <title>ой крутой</title>
       <Outlet />
       <ScrollRestoration getKey={(location) => location.pathname} />
       <ScrollToTop />
       <Footer />
-    </>
+    </CartProvider>
   )
 }
 
@@ -123,4 +128,3 @@ function App() {
 }
 
 export default App
-

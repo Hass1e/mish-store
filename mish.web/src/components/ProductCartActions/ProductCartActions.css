@@ -1,0 +1,111 @@
+.product-cart-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-cart-actions--card {
+  width: 90%;
+  margin: 0 auto 10px;
+}
+
+.product-cart-actions--detail {
+  width: 100%;
+  max-width: 320px;
+}
+
+.product-cart-actions__add {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    flex-basis 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s ease,
+    border-radius 0.3s ease,
+    transform 0.15s ease;
+}
+
+.product-cart-actions__add:hover:not(:disabled) {
+  background: #2563eb;
+  border-radius: 12px;
+}
+
+.product-cart-actions__add:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.product-cart-actions__add--added {
+  flex: 0 0 78%;
+  background: #10b981;
+}
+
+.product-cart-actions__add--added:hover:not(:disabled) {
+  background: #059669;
+}
+
+.product-cart-actions__remove {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  animation: product-cart-actions-reveal 0.25s ease both;
+}
+
+.product-cart-actions__remove:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.product-cart-actions__remove-icon {
+  width: 16px;
+  height: 16px;
+  transition: filter 0.2s ease;
+}
+
+.product-cart-actions__remove:hover .product-cart-actions__remove-icon {
+  filter: invert(20%) sepia(85%) saturate(7480%) hue-rotate(355deg) brightness(95%) contrast(105%);
+}
+
+.product-cart-actions__add:disabled,
+.product-cart-actions__remove:disabled {
+  cursor: wait;
+}
+
+.product-cart-actions--detail .product-cart-actions__add {
+  height: 52px;
+  font-size: 18px;
+}
+
+.product-cart-actions--detail .product-cart-actions__remove {
+  flex-basis: 44px;
+  width: 44px;
+  height: 44px;
+}
+
+@keyframes product-cart-actions-reveal {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

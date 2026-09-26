@@ -2,7 +2,6 @@
 //import { useCart } from '../../hooks/useCart';
 import { CartItems } from './components/CartItems/CartItems';
 import { CartSummary } from './components/CartSummary/CartSummary';
-import { CartProvider } from '../Cart/components/CartContext.tsx';
 import './CartPage.css';
 /*
 export function CartPage() {
@@ -32,12 +31,10 @@ export function CartPage() {
 
 export function CartPage() {
   return (
-    <CartProvider>  
     <div className="cart-page">
       <CartItems />
       <CartSummary />
       
     </div>
-    </CartProvider>
   );
 }

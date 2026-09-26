@@ -35,7 +35,7 @@
 .product-card {
   box-sizing: border-box; 
   width: 200px; 
-  aspect-ratio: 3 / 5.2;
+  aspect-ratio: 3 / 5.4;
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
@@ -67,7 +67,7 @@
 
 .product-card__image {
     width: 100%;
-    aspect-ratio: 4/5;
+    aspect-ratio: 5/6;
     object-fit: cover;
     transition: opacity 0.3s ease;
     
@@ -88,6 +88,15 @@
 {
     margin-left: 12px;
     font-size: 16px;
+    min-height: 48px;
+    max-height: 48px;
+    display: -webkit-box;
+    line-clamp: 2; /* Количество строк */
+    -webkit-line-clamp: 2; /* Количество строк */
+    -webkit-box-orient: vertical;
+  
+  /* Скрываем вылезающий текст */
+  overflow: hidden;
 }
 
 .product-card__info
@@ -283,100 +292,4 @@ height: auto;
 /* Скрываем всё внутри, пока идет загрузка */
 .product-card.is-loading * {
   visibility: hidden;
-}
-/* ==========================================
-   НОВЫЕ СТИЛИ ДЛЯ ДВУХ КНОПОК (ВСТАВИТЬ В КОНЕЦ)
-============================================= */
-
-/* Контейнер для кнопок, заменяет margin: auto у старой кнопки */
-.product-card__actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 90%;
-  margin: 0 auto 10px auto; /* Твои исходные отступы */
-}
-
-/* Основная кнопка (аналог твоей add-to-cart) */
-.product-card__add-btn {
-  flex: 1; /* Занимает всё доступное место в контейнере */
-  height: 32px;
-  font-size: 14px; /* Чуть компактнее, чтобы текст влезал при сжатии */
-  font-weight: 600;
-  background: #3b82f6;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.product-card__add-btn:hover:not(:disabled) {
-  background: #2563eb;
-  border-radius: 12px;
-}
-
-.product-card__add-btn:active:not(:disabled) {
-  transform: scale(0.99);
-  background: #316cc9;
-}
-
-/* Состояние "В корзине": сжимается влево */
-.product-card__add-btn--added {
-  background: #10b981;
-  flex: 0 0 78%; /* Жестко ограничиваем ширину до ~65%, освобождая место справа */
-  cursor: pointer;
-  border-radius: 6px;
-}
-
-.product-card__add-btn--added:hover {
-  background: #059669;
-}
-
-/* Белая кнопка удаления справа */
-.product-card__remove-btn {
-  flex: 0 0 32px; /* Фиксированный квадрат 32x32px */
-  height: 32px;
-  background: #ffffff; 
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  
-  /* Скрыта по умолчанию */
-  opacity: 0;
-  transform: translateX(10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-}
-
-/* МАГИЯ CSS: когда внутри есть кнопка с классом --added, показываем кнопку удаления */
-.product-card__actions:has(.product-card__add-btn--added) .product-card__remove-btn {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
-}
-
-.product-card__remove-btn:hover {
-  background: #fee2e2; /* Легкий красный оттенок при наведении */
-  border-color: #fecaca;
-}
-
-/* Иконка внутри кнопки удаления */
-.product-card__remove-icon {
-  width: 16px;
-  height: 16px;
-  /* Делаем иконку серой по умолчанию */
-  /*filter: invert(40%) sepia(0%) saturate(0%) brightness(0%) contrast(100%); */
-  transition: filter 0.2s;
-}
-
-/* При наведении на кнопку удаления иконка становится красной */
-.product-card__remove-btn:hover .product-card__remove-icon {
-  filter: invert(20%) sepia(85%) saturate(7480%) hue-rotate(355deg) brightness(95%) contrast(105%);
 }
