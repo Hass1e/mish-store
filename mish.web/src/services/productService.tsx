@@ -66,3 +66,56 @@ if (!response.ok) {
 
   return await response.json();
 };
+
+export async function getProductForEdit(id: number) {
+  const response = await fetch(`/api/products/${id}/edit`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}` // Или откуда ты берешь токен
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Не удалось загрузить данные товара');
+  }
+
+  return await response.json();
+}
+
+// mish.web/src/services/productService.ts
+
+export async function updateProduct(id: number, formData: FormData) {
+  const token = localStorage.getItem('token'); // Или cookie
+  
+  const response = await fetch(`/api/products/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`
+      // ⚠️ ВАЖНО: НЕ указывай Content-Type вручную для FormData!
+      // Браузер сам выставит правильный boundary
+    },
+    body: formData
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || 'Не удалось обновить товар');
+  }
+
+  // Для PUT запроса часто возвращается NoContent (204), поэтому json() может упасть
+  if (response.status === 204) return true;
+  
+  return await response.json();
+}
+
+export async function getManagedProducts(page: number = 1, size: number = 50) {
+  const token = localStorage.getItem('token');
+  
+  const response = await fetch(`/api/products/managed?page=${page}&size=${size}`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (!response.ok) throw new Error('Не удалось загрузить список товаров');
+  return await response.json();
+}

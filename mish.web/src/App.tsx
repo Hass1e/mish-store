@@ -10,12 +10,13 @@ import { ChangeRoles } from './pages/home/AdminTool/ChangeRoles/ChangeRoles.tsx'
 // 1. Динамические импорты (загрузятся только при переходе на страницу)
 const Home = lazy(() => import('./components/hero_banner/HeroBanner__mass.tsx').then(m => ({ default: m.Home })))
 const Catalog = lazy(() => import('./components/ProductCard/ProductCard_mass.tsx').then(m => ({ default: m.Catalog })))
-const CreateProduct = lazy(() => import('./pages/home/CreateProduct/CreateProduct.tsx').then(m => ({ default: m.CreateProduct })))
+//const CreateProduct = lazy(() => import('./pages/home/CreateProduct/CreateProduct.tsx').then(m => ({ default: m.CreateProduct })))
 const AdminTool = lazy(() => import('./pages/home/AdminTool/AdminTool.tsx').then(m => ({ default: m.AdminTool })))
 const Profile = lazy(() => import('./pages/home/Profile/Profile.tsx').then(m => ({ default: m.Profile })))
 const CartPage = lazy(() => import('./pages/Cart/CartPage.tsx').then(m => ({ default: m.CartPage })))
 const AuthModal = lazy(() => import('./components/AuthModal/AuthModal.tsx')) 
 const ProductDetail = lazy(() => import('./components/ProductDetail/ProductDetail.tsx').then(m => ({ default: m.ProductDetail })))
+const ProductManager = lazy(() => import('./pages/home/CreateProduct/ProductManager.tsx').then(m => ({ default: m.ProductManager })))
 
 // Компонент-заглушка, пока страница скачивается
 const PageLoader = () => <div style={{ minHeight: '50vh' }}>Загрузка...</div>
@@ -49,7 +50,17 @@ const router = createBrowserRouter([
                 element: (
                     <RequirePermission permission="products.create">
                         <Suspense fallback={<PageLoader />}>
-                            <CreateProduct />
+                            <ProductManager  />
+                        </Suspense>
+                    </RequirePermission>
+                ),
+            },
+            {
+                path: "products/:id/edit",
+                element: (
+                    <RequirePermission permission="products.edit_any">
+                        <Suspense fallback={<PageLoader />}>
+                            <ProductManager  />
                         </Suspense>
                     </RequirePermission>
                 ),
