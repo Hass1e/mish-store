@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/unitTest/" />
+  <Folder Name="/unitTest/Api.unitTest/">
+    <Project Path="unitTest/Api.unitTest/Mish.Api.unitTest.csproj" />
+  </Folder>
+  <Project Path="Mish.Api/Mish.Api.csproj" />
+</Solution>

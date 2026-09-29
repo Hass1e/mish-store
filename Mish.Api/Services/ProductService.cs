@@ -31,28 +31,9 @@ public class ProductService : IProductService
         if (page < 1) page = 1;
         if (size < 1 || size > 100) size = 50;
 
-        IQueryable<Product> query = _context.Products.AsNoTracking();
-
-        if (user?.Identity?.IsAuthenticated == true)
-        {
-            var isAdmin = user.HasPermission("products.edit_any");
-
-            if (!isAdmin)
-            {
-                if (TryGetUserId(user, out var userId))
-                {
-                    query = query.Where(p => p.ProductSellers.Any(ps => ps.SellerId == userId));
-                }
-                else
-                {
-                    query = query.Where(_ => false);
-                }
-            }
-        }
-        else
-        {
-            query = query.Where(p => p.IsActive);
-        }
+        IQueryable<Product> query = _context.Products
+            .AsNoTracking()
+            .Where(p => p.IsActive);
 
         return await GetPagedProductsAsync(query, page, size);
     }
@@ -60,29 +41,11 @@ public class ProductService : IProductService
     // ПУБЛИЧНАЯ ДЕТАЛЬНАЯ СТРАНИЦА
     public async Task<ProductDetailDto?> GetByIdAsync(int id, ClaimsPrincipal? user)
     {
-        if (user is null || user.Identity?.IsAuthenticated != true)
-        {
-            var guestProduct = await _context.Products
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id && p.IsActive);
-            if (guestProduct == null) return null;
-
-            return MapToDetailDto(guestProduct);
-        }
-
-        var isAdmin = user.HasPermission("products.edit_any");
-        var hasUserId = TryGetUserId(user, out var userId);
-        if (!isAdmin && !hasUserId) return null;
-
         var product = await _context.Products
-            .Include(p => p.ProductSellers)
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p => p.Id == id && p.IsActive);
 
         if (product == null) return null;
-
-        bool hasAccess = isAdmin || product.ProductSellers.Any(ps => ps.SellerId == userId);
-        if (!hasAccess) return null;
 
         return MapToDetailDto(product);
     }

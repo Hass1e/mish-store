@@ -56,10 +56,25 @@ function CartItemRow({
 
   return (
     <div className="cart-item">
-      <img src={imageUrl} alt={item.productName} className="cart-item__image" />
+      <a
+        href={`/product/${item.productId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Открыть товар ${item.productName || `#${item.productId}`} в новой вкладке`}
+      >
+        <img src={imageUrl} alt={item.productName} className="cart-item__image" />
+      </a>
 
       <div className="cart-item__info">
-        <h3 className="cart-item__title">{item.productName || `Товар #${item.productId}`}</h3>
+        <h3 className="cart-item__title">
+          <a
+            href={`/product/${item.productId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {item.productName || `Товар #${item.productId}`}
+          </a>
+        </h3>
         <span className="cart-item__price">
           {item.price ? item.price.toLocaleString('ru-RU') : '???'} ₽
         </span>

@@ -16,6 +16,15 @@ export function Header() {
     const { isAuthenticated, user, logout } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false)
 
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (error) {
+            console.error('Ошибка выхода из аккаунта:', error);
+            window.alert('Не удалось выйти из аккаунта. Попробуйте ещё раз.');
+        }
+    };
+
     return (
         <header className="header">
             <div className="header__container">
@@ -40,7 +49,7 @@ export function Header() {
                         Профиль
                         </Link>
                         <button 
-                        onClick={logout} 
+                        onClick={() => void handleLogout()} 
                         className="header__action-btn header__action-btn--logout"
                         >
                         Выйти

@@ -57,6 +57,16 @@ public static class PermissionPolicyRegistrar
 
             options.AddPolicy("products.edit_any", policy =>
                 policy.Requirements.Add(new PermissionRequirement("products.edit_any")));
+                
+            options.AddPolicy("orders.view_all", policy =>
+               policy.Requirements.Add(new PermissionRequirement("orders.view_all")));
+
+            options.AddPolicy("orders.update_status", policy =>
+                policy.Requirements.Add(new PermissionRequirement("orders.update_status")));
+
+            options.AddPolicy("orders.force_status_change", policy =>
+                policy.Requirements.Add(new PermissionRequirement("orders.force_status_change")));
+        
         });
 
         services.AddSingleton<IAuthorizationHandler, PermissionRequirementHandler>();

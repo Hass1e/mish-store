@@ -12,7 +12,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (user: User) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -50,7 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(newUser);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const response = await apiFetch('/api/auth/logout', { method: 'POST' });
+    if (!response.ok) {
+      throw new Error(`Не удалось завершить сессию (${response.status})`);
+    }
+
     setUser(null);
   };
 

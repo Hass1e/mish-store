@@ -24,6 +24,9 @@ public DbSet<Role> Roles => Set<Role>();
 public DbSet<Permission> Permissions => Set<Permission>();
 public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
+public DbSet<Order> Orders { get; set; }
+public DbSet<OrderItem> OrderItems { get; set; }
+
 protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
     base.OnModelCreating(modelBuilder);
@@ -74,7 +77,35 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         .WithMany() // У User может не быть навигации ProductSellers, это нормально
         .HasForeignKey(ps => ps.SellerId)
         .OnDelete(DeleteBehavior.Restrict); // Не удаляем продавца, если у него есть товары
-}
 
 
-}
+
+   
+
+    modelBuilder.Entity<Order>(entity =>
+    {
+        entity.HasKey(e => e.Id);
+        entity.HasIndex(e => e.UserId);
+        entity.HasIndex(e => e.Status);
+        entity.Property(e => e.Status).HasMaxLength(20);
+
+        entity.HasOne(e => e.User)
+              .WithMany()
+              .HasForeignKey(e => e.UserId)
+              .OnDelete(DeleteBehavior.Restrict); // не удаляем заказы при удалении юзера
+    });
+
+    modelBuilder.Entity<OrderItem>(entity =>
+    {
+        entity.HasKey(e => e.Id);
+        entity.HasIndex(e => e.OrderId);
+        entity.HasIndex(e => e.ProductId);
+        entity.Property(e => e.ProductName).HasMaxLength(200);
+
+        entity.HasOne(e => e.Order)
+              .WithMany(o => o.Items)
+              .HasForeignKey(e => e.OrderId)
+              .OnDelete(DeleteBehavior.Cascade); // при удалении заказа — удаляются позиции
+    });
+
+}}

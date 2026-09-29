@@ -65,6 +65,15 @@
   color: #222;
 }
 
+.cart-item__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cart-item__title a:hover {
+  text-decoration: underline;
+}
+
 .cart-item__price {
   font-size: 14px;
   color: #ec2828;

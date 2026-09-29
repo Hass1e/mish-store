@@ -6,19 +6,21 @@ import { Header } from './header.tsx'
 import { Footer } from './components/footer/Footer.tsx'
 import ScrollToTop from './components/ScrollToTop/ScrollToTop.tsx'
 import { RequirePermission } from './components/Permission/RequirePermission.tsx'
-import { ChangeRoles } from './pages/home/AdminTool/ChangeRoles/ChangeRoles.tsx'
+import { ChangeRoles } from './pages/AdminTool/ChangeRoles/ChangeRoles.tsx'
 import { CartProvider } from './pages/Cart/components/CartContext.tsx'
 // 1. Динамические импорты (загрузятся только при переходе на страницу)
 const Home = lazy(() => import('./components/hero_banner/HeroBanner__mass.tsx').then(m => ({ default: m.Home })))
 const Catalog = lazy(() => import('./components/ProductCard/ProductCard_mass.tsx').then(m => ({ default: m.Catalog })))
 //const CreateProduct = lazy(() => import('./pages/home/CreateProduct/CreateProduct.tsx').then(m => ({ default: m.CreateProduct })))
-const AdminTool = lazy(() => import('./pages/home/AdminTool/AdminTool.tsx').then(m => ({ default: m.AdminTool })))
+const AdminTool = lazy(() => import('./pages/AdminTool/AdminTool.tsx').then(m => ({ default: m.AdminTool })))
 const Profile = lazy(() => import('./pages/home/Profile/Profile.tsx').then(m => ({ default: m.Profile })))
 const CartPage = lazy(() => import('./pages/Cart/CartPage.tsx').then(m => ({ default: m.CartPage })))
 const AuthModal = lazy(() => import('./components/AuthModal/AuthModal.tsx')) 
 const ProductDetail = lazy(() => import('./components/ProductDetail/ProductDetail.tsx').then(m => ({ default: m.ProductDetail })))
-const ProductManager = lazy(() => import('./pages/home/CreateProduct/ProductManager.tsx').then(m => ({ default: m.ProductManager })))
+const ProductManager = lazy(() => import('./pages/AdminTool/CreateProduct/ProductManager.tsx').then(m => ({ default: m.ProductManager })))
 const Products = lazy(() => import('./pages/Products.tsx').then(m => ({ default: m.Products as ComponentType })))
+const AdminOrders = lazy(() => import('./pages/AdminTool/DeliveryStatus/AdminOrders.tsx').then(m => ({ default: m.AdminOrders as ComponentType })))
+
 // Компонент-заглушка, пока страница скачивается
 const PageLoader = () => <div style={{ minHeight: '50vh' }}>Загрузка...</div>
 
@@ -70,14 +72,24 @@ const router = createBrowserRouter([
                 path: "atool",
                 element: (
                     <RequirePermission permission="users.manage_roles"> 
-                        {/* Или другое право, которое есть только у админов */}
+                        
                         <Suspense fallback={<PageLoader />}>
                             <AdminTool />
                         </Suspense>
                     </RequirePermission>
                 ),
             },
-            
+               {
+                path: "Change-order",
+                element: (
+                    <RequirePermission permission="orders.update_status"> 
+                        
+                        <Suspense fallback={<PageLoader />}>
+                            <AdminOrders />
+                        </Suspense>
+                    </RequirePermission>
+                ),
+            },
             {
                 path: "/change-roles",
                 element: <Suspense fallback={<PageLoader />}><ChangeRoles /></Suspense>,

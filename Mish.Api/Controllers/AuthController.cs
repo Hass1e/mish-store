@@ -84,6 +84,21 @@ public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     }
 }
 
+    [HttpPost("logout")]
+    [AllowAnonymous]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("accessToken", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Unspecified,
+            Path = "/"
+        });
+
+        return NoContent();
+    }
+
 // AuthController.cs
 [HttpGet("me")]
 [Authorize]

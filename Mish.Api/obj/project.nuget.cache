@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "ryOApImZ5/U=",
+  "dgSpecHash": "0/+RdMw/dxQ=",
   "success": true,
   "projectFilePath": "/Users/aaa/mish/Mish.Api/Mish.Api.csproj",
   "expectedPackageFiles": [
     "/Users/aaa/.nuget/packages/bcrypt.net-next/4.2.0/bcrypt.net-next.4.2.0.nupkg.sha512",
+    "/Users/aaa/.nuget/packages/fluentassertions/8.11.0/fluentassertions.8.11.0.nupkg.sha512",
     "/Users/aaa/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/aaa/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/10.0.12/microsoft.aspnetcore.authentication.jwtbearer.10.0.12.nupkg.sha512",
     "/Users/aaa/.nuget/packages/microsoft.bcl.cryptography/10.0.2/microsoft.bcl.cryptography.10.0.2.nupkg.sha512",

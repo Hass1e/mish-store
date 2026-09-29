@@ -24,7 +24,7 @@ public class ProductsController : ControllerBase // ← УБРАЛ [Authorize] �
     [HttpGet]
     [AllowAnonymous] // ← Явно разрешаем анонимный доступ
     [ResponseCache(NoStore = true)]
-    public async Task<ActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int size = 50)
+    public async Task<ActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int size = 10)
     {
         var user = User?.Identity?.IsAuthenticated == true ? User : null;
         var result = await _productService.GetAllAsync(page, size, user);
