@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using Mish.Api.Extensions; // Твой неймспейс с хендлером
 using System.Security.Claims;
 using Xunit;
@@ -7,6 +8,25 @@ namespace Mish.Api.Tests;
 
 public class PermissionTests
 {
+    [Theory]
+    [InlineData("products.create")]
+    [InlineData("products.edit_any")]
+    [InlineData("products.delete")]
+    public async Task AddPermissionPolicies_RegistersProductPolicy(string permission)
+    {
+        var services = new ServiceCollection();
+        services.AddPermissionPolicies();
+        using var provider = services.BuildServiceProvider();
+        var policyProvider = provider.GetRequiredService<IAuthorizationPolicyProvider>();
+
+        var policy = await policyProvider.GetPolicyAsync(permission);
+
+        Assert.NotNull(policy);
+        Assert.Contains(policy.Requirements, requirement =>
+            requirement is PermissionRequirement permissionRequirement &&
+            permissionRequirement.Permission == permission);
+    }
+
     [Fact]
     public async Task HandleRequirementAsync_WithCommaSeparatedPermissions_ShouldSucceed()
     {

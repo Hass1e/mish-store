@@ -92,4 +92,40 @@ public static class DbSeeder
 
         await context.SaveChangesAsync();
     }
+
+    public static async Task SeedCategoriesAsync(AppDbContext context)
+{
+    if (!context.Categories.Any())
+    {
+        var categories = new List<Category>
+        {
+            // Одежда (1 - 1000)
+            new Category { Id = 1, Name = "Одежда", Slug = "clothing", ParentId = null },
+            new Category { Id = 2, Name = "Футболки", Slug = "tshirts", ParentId = 1 },
+            new Category { Id = 3, Name = "Худи", Slug = "hoodies", ParentId = 1 },
+            new Category { Id = 4, Name = "Брюки", Slug = "pants", ParentId = 1 },
+            new Category { Id = 5, Name = "Куртки", Slug = "jackets", ParentId = 1 },
+
+            // Обувь (1001 - 2000)
+            new Category { Id = 1001, Name = "Обувь", Slug = "shoes", ParentId = null },
+            new Category { Id = 1002, Name = "Кроссовки", Slug = "sneakers", ParentId = 1001 },
+            new Category { Id = 1003, Name = "Ботинки", Slug = "boots", ParentId = 1001 },
+
+            // Аксессуары (2001 - 3000)
+            new Category { Id = 2001, Name = "Аксессуары", Slug = "accessories", ParentId = null },
+            new Category { Id = 2002, Name = "Рюкзаки", Slug = "backpacks", ParentId = 2001 },
+            new Category { Id = 2003, Name = "Шапки", Slug = "hats", ParentId = 2001 }
+        };
+
+        context.Categories.AddRange(categories);
+        await context.SaveChangesAsync();
+    }
+}
+
+
+
+
+
+
+
 }

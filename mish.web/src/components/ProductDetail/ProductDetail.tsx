@@ -162,7 +162,7 @@ function LoadedProductDetail({ product }: { product: ProductDetailData }) {
           </div>
           <div className="spec-item">
             <span className="spec-label">Вес</span>
-            <span className="spec-value">{product.weight} кг</span>
+            <span className="spec-value">{product.weight} грамм</span>
           </div>
           <div className="spec-item">
             <span className="spec-label">Состав / Материал</span>

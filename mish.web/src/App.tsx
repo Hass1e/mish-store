@@ -10,7 +10,7 @@ import { ChangeRoles } from './pages/AdminTool/ChangeRoles/ChangeRoles.tsx'
 import { CartProvider } from './pages/Cart/components/CartContext.tsx'
 // 1. Динамические импорты (загрузятся только при переходе на страницу)
 const Home = lazy(() => import('./components/hero_banner/HeroBanner__mass.tsx').then(m => ({ default: m.Home })))
-const Catalog = lazy(() => import('./components/ProductCard/ProductCard_mass.tsx').then(m => ({ default: m.Catalog })))
+const CatalogHeader = lazy(() => import('./components/ProductCard/ProductCard_mass.tsx').then(m => ({ default: m.Catalog })))
 //const CreateProduct = lazy(() => import('./pages/home/CreateProduct/CreateProduct.tsx').then(m => ({ default: m.CreateProduct })))
 const AdminTool = lazy(() => import('./pages/AdminTool/AdminTool.tsx').then(m => ({ default: m.AdminTool })))
 const Profile = lazy(() => import('./pages/home/Profile/Profile.tsx').then(m => ({ default: m.Profile })))
@@ -20,6 +20,8 @@ const ProductDetail = lazy(() => import('./components/ProductDetail/ProductDetai
 const ProductManager = lazy(() => import('./pages/AdminTool/CreateProduct/ProductManager.tsx').then(m => ({ default: m.ProductManager })))
 const Products = lazy(() => import('./pages/Products.tsx').then(m => ({ default: m.Products as ComponentType })))
 const AdminOrders = lazy(() => import('./pages/AdminTool/DeliveryStatus/AdminOrders.tsx').then(m => ({ default: m.AdminOrders as ComponentType })))
+const Catalog = lazy(() => import('../src/pages/Сatalog/Catalog.tsx').then(m => ({ default: m.Catalog as ComponentType })))
+
 
 // Компонент-заглушка, пока страница скачивается
 const PageLoader = () => <div style={{ minHeight: '50vh' }}>Загрузка...</div>
@@ -42,12 +44,39 @@ const router = createBrowserRouter([
             {
                 index: true,
                 // Оборачиваем ленивые компоненты в Suspense
-                element: <Suspense fallback={<PageLoader />}><Home /><Catalog /></Suspense>,
+                element: <Suspense fallback={<PageLoader />}><Home /><CatalogHeader /></Suspense>,
             },
             {
                 path: "product/:id",
                 element: <Suspense fallback={<PageLoader />}><ProductDetailPage /></Suspense>,
             },
+            
+            {
+                path: "catalog",
+                element: (
+                <Suspense fallback={<PageLoader />}>
+                    <Catalog />
+                </Suspense>
+                ),
+            },
+            {
+                path: "catalog/:parentSlug",
+                element: (
+                <Suspense fallback={<PageLoader />}>
+                    <Catalog />
+                </Suspense>
+                ),
+            },
+            {
+                path: "catalog/:parentSlug/:subSlug",
+                element: (
+                <Suspense fallback={<PageLoader />}>
+                    <Catalog />
+                </Suspense>
+                ),
+            },
+
+
             {
                 path: "products/create",
                 element: (

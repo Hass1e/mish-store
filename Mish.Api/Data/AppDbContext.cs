@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Mish.Api.Models;
+using System.Reflection;
 
 namespace Mish.Api.Data;
 
@@ -20,6 +21,8 @@ public class AppDbContext : DbContext
 
     public DbSet<CartItem> CartItems => Set<CartItem>();
 
+    public DbSet<Category> Categories { get; set; }
+
 public DbSet<Role> Roles => Set<Role>();
 public DbSet<Permission> Permissions => Set<Permission>();
 public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
@@ -30,6 +33,10 @@ public DbSet<OrderItem> OrderItems { get; set; }
 protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
     base.OnModelCreating(modelBuilder);
+
+        modelBuilder.HasDbFunction(
+                typeof(AppDbContext).GetMethod(nameof(UnicodeLower), BindingFlags.Public | BindingFlags.Static)!)
+            .HasName("unicode_lower");
 
         // Настройка связи: один пользователь → много товаров в корзине
         modelBuilder.Entity<CartItem>()
@@ -108,4 +115,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
               .OnDelete(DeleteBehavior.Cascade); // при удалении заказа — удаляются позиции
     });
 
-}}
+}
+
+    public static string UnicodeLower(string value) => value.ToLowerInvariant();
+}

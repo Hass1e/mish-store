@@ -55,8 +55,14 @@ public static class PermissionPolicyRegistrar
             options.AddPolicy("users.manage_roles", policy =>
                 policy.Requirements.Add(new PermissionRequirement("users.manage_roles")));
 
+            options.AddPolicy("products.create", policy =>
+                policy.Requirements.Add(new PermissionRequirement("products.create")));
+
             options.AddPolicy("products.edit_any", policy =>
                 policy.Requirements.Add(new PermissionRequirement("products.edit_any")));
+
+            options.AddPolicy("products.delete", policy =>
+                policy.Requirements.Add(new PermissionRequirement("products.delete")));
                 
             options.AddPolicy("orders.view_all", policy =>
                policy.Requirements.Add(new PermissionRequirement("orders.view_all")));

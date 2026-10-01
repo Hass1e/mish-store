@@ -19,6 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); // ← Без этого Swagger не заработает!
 //builder.Services.AddImageSharp(); // Добавляем поддержку ImageSharp
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoriesService, CategoriesService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<ICartService, CartService>();
@@ -118,6 +119,7 @@ using (var scope = app.Services.CreateScope())
     try 
     {
         var context = services.GetRequiredService<AppDbContext>();
+        await context.Database.MigrateAsync();
         
         if (!context.Products.Any())
         {
@@ -178,6 +180,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await DbSeeder.SeedPermissionsAsync(db);
+    await DbSeeder.SeedCategoriesAsync(db);
+    
 }
 
 app.Run();

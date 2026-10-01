@@ -12,6 +12,8 @@ public class CreateProductRequest
     
     public bool IsNew { get; set; }
     public bool IsHit { get; set; }
+    public bool IsActive { get; set; } = true;
+    public int CategoryId { get; set; }
     
     // ✅ Rating вычисляется на основе отзывов, не передается при создании
     

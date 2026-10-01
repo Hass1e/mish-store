@@ -1,3 +1,4 @@
+// AdminTool/CreateProduct/CreateProduct.tsx
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { createProduct, updateProduct, getProductForEdit } from '../../../services/productService';
@@ -14,6 +15,13 @@ function resolveImageUrl(url: string): string {
   return `${ENDPOINTS.UPLOADS}${path}`;
 }
 
+interface CategoryTree {
+  id: number;
+  name: string;
+  children: CategoryTree[];
+}
+
+
 export function CreateProduct() {
   const { id } = useParams<{ id: string }>(); // Если есть ID - режим редактирования
   const navigate = useNavigate();
@@ -23,6 +31,8 @@ export function CreateProduct() {
   const [isLoading, setIsLoading] = useState(isEditMode); // Загружаем данные только в режиме edit
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [categories, setCategories] = useState<CategoryTree[]>([]);
+  const [parentCatId, setParentCatId] = useState('');
 
   // Состояние формы
   const [formData, setFormData] = useState({
@@ -48,7 +58,7 @@ export function CreateProduct() {
   useEffect(() => {
     if (!success || !isEditMode) return;
 
-    const timeoutId = window.setTimeout(() => navigate('/products/'), 2000);
+    const timeoutId = window.setTimeout(() => navigate(`/products/${id}`), 2000);
     return () => window.clearTimeout(timeoutId);
   }, [success, isEditMode, navigate]);
 
@@ -90,6 +100,8 @@ export function CreateProduct() {
     loadProduct();
   }, [id, isEditMode]);
 
+  
+
   // Обработчик текстовых полей
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -98,6 +110,14 @@ export function CreateProduct() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+    // 🆕 Обработчик выбора родительской категории
+  const handleParentCategoryChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const newParentId = e.target.value;
+    setParentCatId(newParentId);
+    // Сбрасываем выбранную подкатегорию при смене родителя
+    setFormData(prev => ({ ...prev, categoryId: '' }));
   };
 
   // Валидация и добавление НОВЫХ изображений
@@ -158,6 +178,7 @@ export function CreateProduct() {
     if (!formData.name.trim()) return setError('Введите название товара');
     if (formData.name.length > 32) return setError('Название не должно превышать 32 символа');
     if (!formData.price || Number(formData.price) <= 0) return setError('Цена должна быть больше 0');
+    if (!isEditMode && !formData.categoryId) return setError('Выберите категорию товара');
     
     // При создании обязательно нужны фото, при редактировании можно оставить как есть
     if (!isEditMode && newImageFiles.length === 0 && existingImageUrls.length === 0) {
@@ -204,6 +225,37 @@ export function CreateProduct() {
     }
   };
 
+  // 🆕 1. Загружаем дерево категорий при монтировании компонента
+  useEffect(() => {
+    fetch('/api/categories/tree')
+      .then(res => res.json())
+      .then(data => setCategories(data))
+      .catch(err => console.error('Ошибка загрузки категорий:', err));
+  }, []);
+
+  // 🆕 2. Синхронизируем родительскую категорию при загрузке данных в режиме редактирования
+  useEffect(() => {
+    if (isEditMode && formData.categoryId && categories.length > 0) {
+      const targetId = Number(formData.categoryId);
+      let foundParentId = '';
+      
+      // Ищем, какой родитель содержит эту категорию (или является ею самой)
+      for (const cat of categories) {
+        if (cat.id === targetId) {
+          foundParentId = String(cat.id);
+          break;
+        }
+        const isChild = cat.children.some((child: CategoryTree) => child.id === targetId);
+        if (isChild) {
+          foundParentId = String(cat.id);
+          break;
+        }
+      }
+      setParentCatId(foundParentId);
+    }
+  }, [isEditMode, formData.categoryId, categories]);
+
+
   if (isLoading) return <div className="create-page"><div className="form-island">Загрузка данных...</div></div>;
 
   if (success && !isEditMode) {
@@ -249,7 +301,7 @@ export function CreateProduct() {
               <input type="number" name="oldPrice" value={formData.oldPrice} onChange={handleChange} min="2" step="1" className="input" />
             </div>
 
-            {/* Изображения */}
+            
             <div className="form-group full-width">
               <label className="label">Изображения</label>
               <div className="file-upload-area" onClick={() => document.getElementById('fileInput')?.click()}>
@@ -303,19 +355,50 @@ export function CreateProduct() {
             </div>
 
             {/* Только для режима редактирования / админов */}
-            {isEditMode && (
+            
               <>
                 <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
                   <input type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} id="isActive" style={{ width: '20px', height: '20px' }} />
                   <label htmlFor="isActive" className="label" style={{ margin: 0 }}>Активен (виден в каталоге)</label>
                 </div>
                 
+                            
                 <div className="form-group">
-                  <label className="label">Категория (ID)</label>
-                  <input type="number" name="categoryId" value={formData.categoryId} onChange={handleChange} className="input" placeholder="ID категории" />
+                  <label className="label">Раздел</label>
+                  <select 
+                    name="parentCategory" 
+                    value={parentCatId} 
+                    onChange={handleParentCategoryChange} 
+                    className="input"
+                  >
+                    <option value="">-- Выберите раздел --</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                
+
+                
+                  <label className="label">Категория</label>
+                  <select 
+                    name="categoryId" 
+                    value={formData.categoryId} 
+                    onChange={handleChange} 
+                    className="input"
+                    disabled={!parentCatId} // Блокируем, пока не выбран раздел
+                  >
+                    <option value="">-- Выберите категорию --</option>
+                    {parentCatId && categories
+                      .find(c => String(c.id) === parentCatId)
+                      ?.children.map((child: CategoryTree) => (
+                        <option key={child.id} value={child.id}>
+                          {child.name} ({child.id})
+                        </option>
+                      ))}
+                  </select>
                 </div>
               </>
-            )}
+            
           </div>
 
           <button type="submit" disabled={isSubmitting} className="submit-btn">

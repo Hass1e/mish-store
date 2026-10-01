@@ -44,6 +44,32 @@ namespace Mish.Api.Migrations
                     b.ToTable("CartItems");
                 });
 
+            modelBuilder.Entity("Mish.Api.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("Mish.Api.Models.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -323,6 +349,15 @@ namespace Mish.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Mish.Api.Models.Category", b =>
+                {
+                    b.HasOne("Mish.Api.Models.Category", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("Mish.Api.Models.Order", b =>
                 {
                     b.HasOne("Mish.Api.Models.User", "User")
@@ -381,6 +416,11 @@ namespace Mish.Api.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Seller");
+                });
+
+            modelBuilder.Entity("Mish.Api.Models.Category", b =>
+                {
+                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("Mish.Api.Models.Order", b =>

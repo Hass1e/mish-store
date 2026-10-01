@@ -10,6 +10,7 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Mish.Api.Extensions;
+using Microsoft.Data.Sqlite;
 
 public class ProductService : IProductService
 {
@@ -21,12 +22,19 @@ public class ProductService : IProductService
     {
         _context = context;
         _uploadsPath = Path.Combine(env.ContentRootPath, "wwwroot", "uploads");
+        Directory.CreateDirectory(_uploadsPath);
         _baseUrl = config["ApiSettings:BaseUrl"]
             ?? throw new InvalidOperationException("Ключ ApiSettings:BaseUrl отсутствует.");
     }
 
     // ✅ ОПТИМИЗИРОВАННЫЙ МЕТОД ДЛЯ КАТАЛОГА (без дублирования кода)
-    public async Task<object> GetAllAsync(int page, int size, ClaimsPrincipal? user)
+    public async Task<object> GetAllAsync(
+        int page,
+        int size,
+        ClaimsPrincipal? user,
+        int? categoryId = null,
+        string? search = null,
+        string? sort = null)
     {
         if (page < 1) page = 1;
         if (size < 1 || size > 100) size = 50;
@@ -35,7 +43,40 @@ public class ProductService : IProductService
             .AsNoTracking()
             .Where(p => p.IsActive);
 
-        return await GetPagedProductsAsync(query, page, size);
+        if (categoryId.HasValue)
+        {
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchTerm = search.Trim().ToLowerInvariant();
+            query = query.Where(p =>
+                AppDbContext.UnicodeLower(p.Name).Contains(searchTerm) ||
+                AppDbContext.UnicodeLower(p.SKU).Contains(searchTerm) ||
+                AppDbContext.UnicodeLower(p.CategoryName).Contains(searchTerm) ||
+                AppDbContext.UnicodeLower(p.Description).Contains(searchTerm));
+        }
+
+        if (_context.Database.IsSqlite() && !string.IsNullOrWhiteSpace(search))
+        {
+            await _context.Database.OpenConnectionAsync();
+            try
+            {
+                var connection = (SqliteConnection)_context.Database.GetDbConnection();
+                connection.CreateFunction<string?, string?>(
+                    "unicode_lower",
+                    value => value?.ToLowerInvariant());
+
+                return await GetPagedProductsAsync(query, page, size, sort);
+            }
+            finally
+            {
+                await _context.Database.CloseConnectionAsync();
+            }
+        }
+
+        return await GetPagedProductsAsync(query, page, size, sort);
     }
 
     // ПУБЛИЧНАЯ ДЕТАЛЬНАЯ СТРАНИЦА
@@ -165,6 +206,21 @@ public class ProductService : IProductService
         if (request.Price <= 0)
             throw new ArgumentException("Цена должна быть больше нуля.");
 
+        var categoryName = string.Empty;
+        if (request.CategoryId != 0)
+        {
+            var category = await _context.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == request.CategoryId);
+
+            if (category == null)
+            {
+                throw new ArgumentException("Выбранная категория не найдена.");
+            }
+
+            categoryName = category.Name;
+        }
+
         List<string> savedUrls = new();
         if (images != null && images.Length > 0)
         {
@@ -190,6 +246,10 @@ public class ProductService : IProductService
             Stock = request.Stock ?? 0,
             IsNew = request.IsNew,
             IsHit = request.IsHit,
+            IsActive = request.IsActive,
+            CategoryId = request.CategoryId,
+            CategoryName = categoryName,
+            Tags = request.Tags ?? new List<string>(),
             ImageUrls = savedUrls, 
             SKU = $"MISH-{Guid.NewGuid().ToString("N")[..8].ToUpper()}",
             CreatedAt = DateTime.UtcNow,
@@ -285,12 +345,21 @@ public class ProductService : IProductService
     }
 
     // ✅ ПРИВАТНЫЙ МЕТОД: ЕДИНАЯ ЛОГИКА ПАГИНАЦИИ И ПРОЕКЦИИ
-    private async Task<object> GetPagedProductsAsync(IQueryable<Product> query, int page, int size)
+    private async Task<object> GetPagedProductsAsync(IQueryable<Product> query, int page, int size, string? sort = null)
     {
         var total = await query.CountAsync();
 
-        var products = await query
-            .OrderByDescending(p => p.CreatedAt)
+        var orderedQuery = sort switch
+        {
+            "price_asc" => query.OrderBy(p => (double)p.Price).ThenByDescending(p => p.CreatedAt),
+            "price_desc" => query.OrderByDescending(p => (double)p.Price).ThenByDescending(p => p.CreatedAt),
+            "name" => query.OrderBy(p => p.Name).ThenByDescending(p => p.CreatedAt),
+            "rating" => query.OrderByDescending(p => p.Rating).ThenByDescending(p => p.CreatedAt),
+            "hit" => query.OrderByDescending(p => p.IsHit).ThenByDescending(p => p.CreatedAt),
+            _ => query.OrderByDescending(p => p.CreatedAt)
+        };
+
+        var products = await orderedQuery
             .Skip((page - 1) * size)
             .Take(size)
             .Select(p => new ProductSummaryDto
@@ -312,7 +381,8 @@ public class ProductService : IProductService
             total,
             page,
             size,
-            totalPages = (int)Math.Ceiling(total / (double)size)
+            totalPages = (int)Math.Ceiling(total / (double)size),
+            hasMore = page * size < total
         };
     }
 
@@ -361,6 +431,10 @@ public class ProductService : IProductService
         catch (UnknownImageFormatException)
         {
             throw new ArgumentException("Неверный формат изображения.");
+        }
+        catch (InvalidImageContentException)
+        {
+            throw new ArgumentException("Файл изображения повреждён или имеет неверный формат.");
         }
     }
 

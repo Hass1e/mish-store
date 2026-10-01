@@ -9,7 +9,13 @@ using System.Security.Claims;
 public interface IProductService
 {
     // 1. Список товаров: нужен User, чтобы фильтровать (Админ видит всё, Продавец - только своё)
-    Task<object> GetAllAsync(int page, int size, ClaimsPrincipal? user);
+    Task<object> GetAllAsync(
+        int page,
+        int size,
+        ClaimsPrincipal? user,
+        int? categoryId = null,
+        string? search = null,
+        string? sort = null);
     
     // 2. Детали товара: нужен User, чтобы проверить доступ к чужому товару
     Task<ProductDetailDto?> GetByIdAsync(int id, ClaimsPrincipal? user);
