@@ -50,7 +50,11 @@ export function ProductManager() {
 
   // Если в URL есть ID - сразу показываем форму редактирования
   if (id) {
-    return <CreateProduct />;
+    return (
+      <div className="product-manager">
+        <CreateProduct />
+      </div>
+    );
   }
 
   // Режим создания - просто рендерим форму

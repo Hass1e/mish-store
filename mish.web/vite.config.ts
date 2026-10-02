@@ -10,7 +10,12 @@ export default defineConfig({
         target: 'http://localhost:5073', // <-- ТВОЙ ПОРТ API
         changeOrigin: true,
         secure: false,
-      }
+      },
+      '/swagger': {
+        target: 'http://localhost:5073',
+        changeOrigin: true,
+        secure: false,
+      },
     }
   }
 })

@@ -63,7 +63,7 @@ public async Task<IActionResult> Register([FromBody] RegisterRequest request)
             {
                 HttpOnly = true,
                 Secure = false,           // Обязательно false для http://localhost
-                SameSite = SameSiteMode.Unspecified, // Lax — самый безопасный компромисс для localhost
+                SameSite = SameSiteMode.Lax, // Lax — самый безопасный компромисс для localhost
                 Expires = DateTime.UtcNow.AddMinutes(4320),
                 Path = "/",
                 
