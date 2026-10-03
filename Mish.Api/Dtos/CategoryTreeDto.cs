@@ -2,14 +2,19 @@
 
 namespace Mish.Api.Dtos;
 
+/// <summary>
+/// DTO для представления дерева категорий.
+/// </summary>
 public class CategoryTreeDto
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string Slug { get; set; } = string.Empty;
-    public List<CategoryTreeDto> Children { get; set; } = new();
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string Slug { get; init; } = string.Empty;
+    public List<CategoryTreeDto> Children { get; init; } = new();
 }
-
+// <summary>
+// DTO для представления дерева категорий. [Request]
+// </summary>
 // Dtos/Products/ProductsFilterDto.cs
 public class ProductsFilterDto
 {

@@ -176,15 +176,13 @@ public class ProductService : IProductService
             .OrderByDescending(p => p.UpdatedAt)
             .Skip((page - 1) * size)
             .Take(size)
-            .Select(p => new ManagedProductDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Sku = p.SKU,
-                Price = p.Price,
-                IsActive = p.IsActive,
-                UpdatedAt = p.UpdatedAt
-            })
+            .Select(p => new ManagedProductDto(
+                p.Id,
+                p.Name,
+                p.SKU,
+                p.Price,
+                p.IsActive,
+                p.UpdatedAt))
             .ToListAsync();
 
         return new

@@ -64,12 +64,13 @@ public class RolesController : ControllerBase
 
 }
 
-
-
 // Простой DTO для ответа (не светим лишние поля вроде навигационных свойств)
+/// <summary>
+/// DTO для представления роли. [Response]
+/// </summary>
 public class RoleDto
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string? Description { get; init; }
 }

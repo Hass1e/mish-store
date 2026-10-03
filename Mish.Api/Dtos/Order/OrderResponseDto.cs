@@ -1,45 +1,55 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Mish.Api.DTOs;
 
+// DTO для ответа пользователю
 public class OrderResponseDto
 {
-    public int Id { get; set; }
-    public int UserId { get; set; }
-    public decimal TotalAmount { get; set; }
-    public string Status { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
-    public List<OrderItemResponseDto> Items { get; set; } = new();
+    public int Id { get; init; }
+    public int UserId { get; init; } 
+    public decimal TotalAmount { get; init; }
+    public string Status { get; init; } = string.Empty;
+    public DateTime CreatedAt { get; init; }
+    public DateTime UpdatedAt { get; init; }
+    public List<OrderItemResponseDto> Items { get; init; } = new();
 }
 
+// DTO для товара внутри заказа
 public class OrderItemResponseDto
 {
-    public int Id { get; set; }
-    public int ProductId { get; set; }
-    public string ProductName { get; set; } = string.Empty;
-    public decimal Price { get; set; }
-    public int Quantity { get; set; }
-    public decimal Subtotal { get; set; }
-    public string? ImageUrl { get; set; }
+    public int Id { get; init; }
+    public int ProductId { get; init; }
+    public string ProductName { get; init; } = string.Empty;
+    public decimal Price { get; init; }
+    public int Quantity { get; init; }
+    public decimal Subtotal { get; init; }
+    public string? ImageUrl { get; init; }
 }
 
-// DTO для ответа админу (включает данные пользователя)
+// DTO для админа (расширенный)
 public class AdminOrderResponseDto
 {
-    public int Id { get; set; }
-    public int UserId { get; set; }
-    public string UserUsername { get; set; } = string.Empty;
-    public decimal TotalAmount { get; set; }
-    public string Status { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
-    public List<OrderItemResponseDto> Items { get; set; } = new();
+    public int Id { get; init; }
+    public int UserId { get; init; }
+    public string UserUsername { get; init; } = string.Empty;
+    public decimal TotalAmount { get; init; }
+    public string Status { get; init; } = string.Empty;
+    public DateTime CreatedAt { get; init; }
+    public DateTime UpdatedAt { get; init; }
+    public List<OrderItemResponseDto> Items { get; init; } = new();
 }
 
-// DTO для параметров запроса (фильтры и пагинация)
+// DTO для фильтров (ВХОДЯЩИЕ ДАННЫЕ - тут нужна защита!)
 public class AdminOrdersFilterDto
 {
+    [Range(0, int.MaxValue)]
     public int Skip { get; set; } = 0;
-    public int Take { get; set; } = 20; // По умолчанию 20
+
+    [Range(1, 100, ErrorMessage = "Нельзя запросить более 100 записей за раз")]
+    public int Take { get; set; } = 20;
+
     public string? Status { get; set; }
-    public string? Search { get; set; } // Поиск по ID заказа или Username
+    
+    [StringLength(50, ErrorMessage = "Слишком длинный поисковый запрос")]
+    public string? Search { get; set; }
 }
