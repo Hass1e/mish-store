@@ -7,6 +7,10 @@ using Xunit;
 
 namespace Mish.Api.Tests;
 
+/// <summary>
+/// Тесты CategoriesService.
+/// Проверяет логику построения дерева категорий.
+/// </summary>
 public sealed class CategoriesServiceTests
 {
     // Хелпер для создания изолированной In-Memory базы данных для каждого теста
@@ -22,6 +26,10 @@ public sealed class CategoriesServiceTests
         return context;
     }
 
+    /// <summary>
+    /// Тест 8: Строит правильное дерево категорий с родителями и детьми.
+    /// Проверяет корректность иерархии: 2 корневых элемента, у "Одежда" 2 дочерних.
+    /// </summary>
     [Fact]
     public async Task GetTreeAsync_WithStandardHierarchy_ShouldBuildCorrectTree()
     {
@@ -52,6 +60,9 @@ public sealed class CategoriesServiceTests
         Assert.Empty(tshirts.Children); // У футболок нет детей
     }
 
+    /// <summary>
+    /// Тест 9: Возвращает пустой список для пустой базы данных.
+    /// </summary>
     [Fact]
     public async Task GetTreeAsync_WithEmptyDatabase_ShouldReturnEmptyList()
     {
@@ -67,6 +78,10 @@ public sealed class CategoriesServiceTests
         Assert.Empty(result);
     }
 
+    /// <summary>
+    /// Тест 10: Корректно обрабатывает глубокую вложенность (4 уровня).
+    /// Проверяет: Корень → Уровень 1 → Уровень 2 → Уровень 3.
+    /// </summary>
     [Fact]
     public async Task GetTreeAsync_WithDeepNesting_ShouldBuildFullHierarchy()
     {
@@ -99,6 +114,10 @@ public sealed class CategoriesServiceTests
         Assert.Empty(level3.Children);
     }
 
+    /// <summary>
+    /// Тест 11: Элементы сортируются по имени (alphabetical order).
+    /// Проверяет что результат упорядочен: Apple → Mango → Zebra.
+    /// </summary>
     [Fact]
     public async Task GetTreeAsync_ShouldRespectNameOrdering()
     {
@@ -122,6 +141,10 @@ public sealed class CategoriesServiceTests
         Assert.Equal("Zebra", result[2].Name);
     }
 
+    /// <summary>
+    /// Тест 12: Безопасно игнорирует категории с несуществующим ParentId.
+    /// Категория "Сирота" (ParentId=999) не должна попасть в дерево.
+    /// </summary>
     [Fact]
     public async Task GetTreeAsync_WithOrphanedCategories_ShouldNotCrashAndIgnoreOrphans()
     {

@@ -7,10 +7,20 @@ using Moq;
 
 namespace Mish.Api.Tests.Services;
 
+/// <summary>
+/// Общая тестовая среда для изолированных тестов ProductService.
+/// Создаёт отдельную In-Memory базу данных и временную папку загрузок для каждого теста.
+/// </summary>
 internal sealed class ProductServiceTestFixture : IDisposable
 {
+    /// <summary>
+    /// Путь к временной корневой папке, созданной для этого экземпляра fixture.
+    /// </summary>
     private readonly string _contentRootPath;
 
+    /// <summary>
+    /// Инициализирует In-Memory базу данных, временную папку и ProductService с тестовой конфигурацией.
+    /// </summary>
     public ProductServiceTestFixture()
     {
         _contentRootPath = Path.Combine(Path.GetTempPath(), "Mish.Api.UnitTests", Guid.NewGuid().ToString("N"));
@@ -35,10 +45,19 @@ internal sealed class ProductServiceTestFixture : IDisposable
         Service = new ProductService(Context, environment.Object, configuration);
     }
 
+    /// <summary>
+    /// Контекст In-Memory базы данных, используемый тестом для подготовки и проверки данных.
+    /// </summary>
     public AppDbContext Context { get; }
 
+    /// <summary>
+    /// Экземпляр ProductService, работающий с контекстом и окружением этого fixture.
+    /// </summary>
     public ProductService Service { get; }
 
+    /// <summary>
+    /// Освобождает контекст базы данных и удаляет временную папку теста.
+    /// </summary>
     public void Dispose()
     {
         Context.Dispose();

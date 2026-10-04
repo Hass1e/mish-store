@@ -5,12 +5,19 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Mish.Api.Services;
 using Mish.Api.DTOs.Cart;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Mish.Api.Controllers;
 
+
+
+/// <summary>
+/// Контроллер для управления корзиной пользователя. [Controller]
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize] // Весь контроллер защищен!
+[EnableRateLimiting("fixed")]
 public class CartController : ControllerBase
 {
     private readonly ICartService _cartService;

@@ -13,12 +13,17 @@ using System.Threading.Tasks;
 using Mish.Api.Extensions;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Mish.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); // ← Без этого Swagger не заработает!
+builder.Services.AddOptions<AuthCookieSettings>()
+    .Bind(builder.Configuration.GetSection("AuthCookie"))
+    .Validate(settings => settings.ExpirationMinutes > 0, "AuthCookie:ExpirationMinutes должен быть больше нуля.")
+    .ValidateOnStart();
 //builder.Services.AddImageSharp(); // Добавляем поддержку ImageSharp
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoriesService, CategoriesService>();
@@ -98,7 +103,39 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 
 
-builder.Services.AddPermissionPolicies();
+builder.Services.AddPermissionPolicies(); 
+builder.Services.AddMemoryCache(); // ← Для кэширования входов пользователей
+
+// 1. Добавляем сервис Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    // Глобальный обработчик ошибок (что возвращать, если лимит исчерпан)
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        await context.HttpContext.Response.WriteAsync("Слишком много запросов. Пожалуйста, подождите.", token);
+    };
+
+    // 2. Создаем политику "FixedWindow" (Фиксированное окно)
+    // Например: 30 запросов в минуту
+    options.AddFixedWindowLimiter(policyName: "fixed", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 30; // Количество запросов
+        limiterOptions.Window = TimeSpan.FromMinutes(1); // Временной промежуток
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 2; // Сколько запросов можно поставить в очередь, если лимит почти достигнут
+    });
+
+    // Можно добавить еще политику для авторизации (более строгую)
+    options.AddSlidingWindowLimiter(policyName: "auth", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 5; // Всего 5 попыток
+        limiterOptions.Window = TimeSpan.FromMinutes(1); 
+        limiterOptions.SegmentsPerWindow = 2;
+    });
+});
+
 
 var app = builder.Build();
 // Твой CORS middleware - оставляем!
@@ -174,9 +211,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-var builder = WebApplication.CreateBuilder(args);
+app.UseRateLimiter();
 
 app.MapControllers();
+app.Run();
+
+app.MapControllers(); // ← Обязательно! Иначе контроллеры не будут работать
 
 using (var scope = app.Services.CreateScope())
 {

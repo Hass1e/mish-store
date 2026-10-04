@@ -4,11 +4,14 @@ using Mish.Api.Services;
 using Mish.Api.Dtos;
 using System.Security.Claims;
 using Mish.Api.Extensions;
+using Microsoft.AspNetCore.RateLimiting;
+
 namespace Mish.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
+[EnableRateLimiting("fixed")]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -43,6 +46,7 @@ public class UsersController : ControllerBase
 
     [HttpPost("change-password")]
     [Authorize]
+    [EnableRateLimiting("auth")] // Применяем более строгий Rate Limiting к изменению пароля
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);

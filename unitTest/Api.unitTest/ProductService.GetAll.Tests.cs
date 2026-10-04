@@ -13,8 +13,16 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace Mish.Api.Tests.Services;
 
+/// <summary>
+/// Тесты ProductService: методы GetAll и Create.
+/// Проверяет фильтрацию, поиск, сортировку и создание товаров.
+/// </summary>
 public class ProductServiceGetAllTests
 {
+    /// <summary>
+    /// Тест 18: При создании продукта сохраняется категория и статус IsActive.
+    /// Проверяет что CategoryName заполняется из связанной категории.
+    /// </summary>
     [Fact]
     public async Task CreateAsync_PersistsCategoryAndInactiveStatus()
     {
@@ -56,6 +64,9 @@ public class ProductServiceGetAllTests
         Assert.False(saved.IsActive);
     }
 
+    /// <summary>
+    /// Тест 19: Конструктор сервиса создаёт директорию для загрузок (wwwroot/uploads).
+    /// </summary>
     [Fact]
     public void ProductService_Constructor_CreatesUploadDirectory()
     {
@@ -87,6 +98,9 @@ public class ProductServiceGetAllTests
         }
     }
 
+    /// <summary>
+    /// Тест 20: Фильтрация по CategoryId=0 возвращает только товары без категории.
+    /// </summary>
     [Fact]
     public async Task GetAllAsync_CategoryIdZero_ReturnsOnlyProductsInThatCategory()
     {
@@ -106,6 +120,9 @@ public class ProductServiceGetAllTests
         Assert.False(hasMore);
     }
 
+    /// <summary>
+    /// Тест 21: Поиск работает без учёта регистра (hAt находит "Blue Hat").
+    /// </summary>
     [Fact]
     public async Task GetAllAsync_Search_FiltersProductNamesWithoutCaseSensitivity()
     {
@@ -123,6 +140,9 @@ public class ProductServiceGetAllTests
         Assert.Equal(1, total);
     }
 
+    /// <summary>
+    /// Тест 22: Сортировка по price_asc возвращает товары по возрастанию цены.
+    /// </summary>
     [Fact]
     public async Task GetAllAsync_SortPriceAscending_ReturnsProductsByPrice()
     {
@@ -139,6 +159,9 @@ public class ProductServiceGetAllTests
         Assert.Equal(new[] { 2, 3, 1 }, items.Select(product => product.Id));
     }
 
+    /// <summary>
+    /// Тест 23: Сортировка работает корректно с реальной SQLite базой.
+    /// </summary>
     [Fact]
     public async Task GetAllAsync_Sqlite_SortPriceAscending_ReturnsProductsByPrice()
     {
@@ -182,6 +205,10 @@ public class ProductServiceGetAllTests
         }
     }
 
+    /// <summary>
+    /// Тест 24: Поиск кириллицы без учёта регистра работает в SQLite.
+    /// Проверяет: "ШАПКА" находит "Шапка зимняя".
+    /// </summary>
     [Fact]
     public async Task GetAllAsync_Sqlite_SearchMatchesCyrillicWithoutCaseSensitivity()
     {

@@ -9,8 +9,16 @@ using Xunit;
 
 namespace Mish.Api.Tests.Services;
 
+/// <summary>
+/// Тесты ProductService: метод UpdateAsync.
+/// Проверяет логику обновления товаров и управление изображениями.
+/// </summary>
 public class ProductServiceUpdateTests
 {
+    /// <summary>
+    /// Тест 33: Обновление текста сохраняет существующие изображения.
+    /// При изменении Name/Price старые ImageUrls не удаляются.
+    /// </summary>
     [Fact]
     public async Task UpdateAsync_OwnerUpdatesText_KeepsExistingImages()
     {
@@ -44,6 +52,10 @@ public class ProductServiceUpdateTests
         Assert.Equal(new[] { "/uploads/old.jpg" }, product.ImageUrls);
     }
 
+    /// <summary>
+    /// Тест 34: Добавление нового изображения дополняет список существующих.
+    /// Новые изображения добавляются к существующим (не заменяют их).
+    /// </summary>
     [Fact]
     public async Task UpdateAsync_OwnerAddsNewImage_AppendsItToExistingImages()
     {
@@ -86,6 +98,9 @@ public class ProductServiceUpdateTests
         Assert.StartsWith("/uploads/", product.ImageUrls[1]);
     }
 
+    /// <summary>
+    /// Тест 35: Не-владелец получает false при попытке обновления.
+    /// </summary>
     [Fact]
     public async Task UpdateAsync_NonOwnerAttempt_ReturnsFalse()
     {
@@ -111,6 +126,9 @@ public class ProductServiceUpdateTests
         Assert.Equal("Original", product.Name);
     }
 
+    /// <summary>
+    /// Тест 36: Обновление несуществующего товара возвращает false.
+    /// </summary>
     [Fact]
     public async Task UpdateAsync_ProductNotFound_ReturnsFalse()
     {

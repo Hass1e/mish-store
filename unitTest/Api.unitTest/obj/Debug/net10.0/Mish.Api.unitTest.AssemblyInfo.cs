@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Mish.Api.unitTest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+668f8c247854c5ed92ccc5786bafe17c2fa942c5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+970d51c3f9bad8ea37cc853cf4a4c026ea223e8b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Mish.Api.unitTest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Mish.Api.unitTest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

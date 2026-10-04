@@ -6,13 +6,14 @@ using Mish.Api.Models;
 using Mish.Api.Dtos;
 using Mish.Api.Extensions;  
 using Mish.Api.Services;
-
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Mish.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize] // Доступно только авторизованным пользователям
+[EnableRateLimiting("fixed")]
 public class RolesController : ControllerBase
 {
     private readonly AppDbContext _context;
