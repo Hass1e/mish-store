@@ -121,18 +121,18 @@ builder.Services.AddRateLimiter(options =>
     // Например: 30 запросов в минуту
     options.AddFixedWindowLimiter(policyName: "fixed", limiterOptions =>
     {
-        limiterOptions.PermitLimit = 30; // Количество запросов
+        limiterOptions.PermitLimit = 35; // Количество запросов
         limiterOptions.Window = TimeSpan.FromMinutes(1); // Временной промежуток
         limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        limiterOptions.QueueLimit = 2; // Сколько запросов можно поставить в очередь, если лимит почти достигнут
+        limiterOptions.QueueLimit = 0; // Сколько запросов можно поставить в очередь, если лимит почти достигнут
     });
 
     // Можно добавить еще политику для авторизации (более строгую)
     options.AddSlidingWindowLimiter(policyName: "auth", limiterOptions =>
     {
-        limiterOptions.PermitLimit = 5; // Всего 5 попыток
+        limiterOptions.PermitLimit = 5; // Всего попыток
         limiterOptions.Window = TimeSpan.FromMinutes(1); 
-        limiterOptions.SegmentsPerWindow = 2;
+        limiterOptions.SegmentsPerWindow = 0;
     });
 });
 

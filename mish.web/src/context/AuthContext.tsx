@@ -22,29 +22,38 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        // ✅ ИСПОЛЬЗУЕМ ЛОКАЛЬНУЮ apiFetch
-        const res = await apiFetch('/api/auth/me'); 
-        
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Ошибка проверки сессии:', error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
+  
+useEffect(() => {
+  const checkSession = async () => {
+    try {
+      const res = await apiFetch('/api/auth/me'); 
+      
+      // ✅ Явно проверяем статус 429
+      if (res.status === 429) {
+        console.warn('⏳ Слишком много запросов. Проверка сессии пропущена.');
+        // Не ставим setUser(null), чтобы не разлогинивать пользователя мгновенно
+        // Или можно показать тост-уведомление
+        return; 
       }
-    };
 
-    checkSession();
-  }, []);
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+      } else {
+        // Для 401/403/500 логика остается прежней
+        setUser(null);
+      }
+    } catch (error) {
+      // Сюда попадают только реальные сетевые ошибки (офлайн, DNS и т.д.)
+      console.error('Ошибка сети при проверке сессии:', error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  checkSession();
+}, []);
 
   const login = (newUser: User) => {
     setUser(newUser);

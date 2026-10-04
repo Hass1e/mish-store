@@ -1,5 +1,6 @@
 import { lazy, Suspense, type ComponentType } from 'react'
 import { createBrowserRouter, RouterProvider, Outlet, useParams, useNavigate, ScrollRestoration } from 'react-router-dom'
+import { Toaster } from 'sonner'
 
 import './App.css'
 import { Header } from './header.tsx'
@@ -164,7 +165,15 @@ function Layout() {
 
 function App() {
   return (
-    <RouterProvider router={router} />
+    <>
+      <RouterProvider router={router} />
+      <Toaster
+        position="top-center"
+        richColors
+        closeButton
+        duration={5000}
+      />
+    </>
   )
 }
 

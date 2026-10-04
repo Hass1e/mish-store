@@ -1,20 +1,28 @@
 // src/utils/api.ts
+import { toast } from 'sonner';
 
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const isFormData = options.body instanceof FormData;
   const isURLSearchParams = options.body instanceof URLSearchParams;
 
-  // Создаем новый объект заголовков, чтобы не мутировать оригинал
   const headers = new Headers(options.headers);
-
-  // Добавляем JSON только если это НЕ форма и НЕ поисковые параметры
   if (!isFormData && !isURLSearchParams) {
     headers.set('Content-Type', 'application/json');
   }
 
-  return fetch(endpoint, {
+  const response = await fetch(endpoint, {
     ...options,
     credentials: 'include',
-    headers, // Передаем объект Headers напрямую
+    headers,
   });
+
+  if (response.status === 429) {
+    toast.warning('Слишком много запросов', {
+      id: 'api-rate-limit',
+      description: 'Подождите немного и попробуйте снова.',
+      duration: 6000,
+    });
+  }
+
+  return response;
 };
