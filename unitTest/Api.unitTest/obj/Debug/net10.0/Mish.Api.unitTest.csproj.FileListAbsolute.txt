@@ -157,3 +157,7 @@
 /Users/aaa/mish/unitTest/Api.unitTest/obj/Debug/net10.0/Mish.Api.unitTest.genruntimeconfig.cache
 /Users/aaa/mish/unitTest/Api.unitTest/obj/Debug/net10.0/ref/Mish.Api.unitTest.dll
 /Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/FluentAssertions.dll
+/Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/Npgsql.dll
+/Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+/Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/DotNetEnv.dll
+/Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/Superpower.dll

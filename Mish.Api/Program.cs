@@ -7,6 +7,7 @@ using Swashbuckle.AspNetCore.SwaggerGen; // ← Обязательно для Ad
 using JwtBearerDefaults = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults;
 using System.Text;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Threading.Tasks;
@@ -16,6 +17,13 @@ using System.Threading.RateLimiting;
 using Mish.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var envFilePath = Path.GetFullPath(
+    Path.Combine(builder.Environment.ContentRootPath, "..", ".env"));
+if (File.Exists(envFilePath))
+{
+    DotNetEnv.Env.Load(envFilePath);
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -32,6 +40,8 @@ builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
@@ -42,14 +52,34 @@ builder.Services.AddCors(options =>
 });
 
 // === ДОБАВЛЕНО: Регистрация SQLite ===
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=Data/app.db"));
+//    builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseSqlite("Data Source=Data/app.db"));
 
+/// === ДОБАВЛЕНО: Регистрация PostgreSQL ===
+builder.Services.AddDbContext<AppDbContext>(options =>
+options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Program.cs (секция builder.Services)
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!);
+var jwtSecret = jwtSettings["SecretKey"];
+if (string.IsNullOrWhiteSpace(jwtSecret))
+{
+    if (!builder.Environment.IsDevelopment())
+    {
+        throw new InvalidOperationException(
+            "JwtSettings:SecretKey must be configured outside Development.");
+    }
+
+    jwtSecret = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+    builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+    {
+        ["JwtSettings:SecretKey"] = jwtSecret
+    });
+    Console.WriteLine("JwtSettings:SecretKey is empty; using a temporary development-only key.");
+}
+
+var secretKey = Encoding.UTF8.GetBytes(jwtSecret);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
 {
@@ -159,6 +189,9 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<AppDbContext>();
         await context.Database.MigrateAsync();
+
+        await RepairLegacyPostgresProductFlagsAsync(context);
+        await EnsurePostgresFunctionsAsync(context);
         
         if (!context.Products.Any())
         {
@@ -216,10 +249,12 @@ using (var scope = app.Services.CreateScope())
 
         await DbSeeder.SeedPermissionsAsync(context);
         await DbSeeder.SeedCategoriesAsync(context);
+        await DbSeeder.SeedAdminUserAsync(context, builder.Configuration["SeedAdmin:Password"]);
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Ошибка при инициализации БД: {ex.Message}");
+        Console.Error.WriteLine($"Ошибка при инициализации БД: {ex}");
+        throw;
     }
 }
 
@@ -238,3 +273,57 @@ app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+static async Task RepairLegacyPostgresProductFlagsAsync(AppDbContext context)
+{
+    if (!context.Database.IsNpgsql())
+    {
+        return;
+    }
+
+    await context.Database.ExecuteSqlRawAsync(
+        """
+        DO $migration$
+        DECLARE
+            flag_column text;
+        BEGIN
+            FOREACH flag_column IN ARRAY ARRAY['IsActive', 'IsNew', 'IsHit'] LOOP
+                IF EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns AS product_column
+                    WHERE product_column.table_schema = 'public'
+                      AND product_column.table_name = 'Products'
+                      AND product_column.column_name = flag_column
+                      AND data_type IN ('smallint', 'integer', 'bigint')
+                ) THEN
+                    EXECUTE format(
+                        'ALTER TABLE public."Products" ALTER COLUMN %I DROP DEFAULT',
+                        flag_column);
+                    EXECUTE format(
+                        'ALTER TABLE public."Products" ALTER COLUMN %I TYPE boolean USING (%I <> 0)',
+                        flag_column,
+                        flag_column);
+                END IF;
+            END LOOP;
+        END
+        $migration$;
+        """);
+}
+
+static async Task EnsurePostgresFunctionsAsync(AppDbContext context)
+{
+    if (!context.Database.IsNpgsql())
+    {
+        return;
+    }
+
+    await context.Database.ExecuteSqlRawAsync(
+        """
+        CREATE OR REPLACE FUNCTION public.unicode_lower(value text)
+        RETURNS text
+        LANGUAGE sql
+        IMMUTABLE
+        PARALLEL SAFE
+        AS $$ SELECT lower(value) $$;
+        """);
+}

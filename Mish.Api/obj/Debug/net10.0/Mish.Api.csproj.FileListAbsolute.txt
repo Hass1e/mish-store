@@ -162,3 +162,7 @@
 /Users/aaa/mish/Mish.Api/obj/Debug/net10.0/Mish.Api.genruntimeconfig.cache
 /Users/aaa/mish/Mish.Api/obj/Debug/net10.0/ref/Mish.Api.dll
 /Users/aaa/mish/Mish.Api/bin/Debug/net10.0/FluentAssertions.dll
+/Users/aaa/mish/Mish.Api/bin/Debug/net10.0/Npgsql.dll
+/Users/aaa/mish/Mish.Api/bin/Debug/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+/Users/aaa/mish/Mish.Api/bin/Debug/net10.0/DotNetEnv.dll
+/Users/aaa/mish/Mish.Api/bin/Debug/net10.0/Superpower.dll

@@ -37,6 +37,27 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         modelBuilder.HasDbFunction(
                 typeof(AppDbContext).GetMethod(nameof(UnicodeLower), BindingFlags.Public | BindingFlags.Static)!)
             .HasName("unicode_lower");
+        modelBuilder.Entity<User>()
+            .Property(u => u.CreatedAt)
+            .HasColumnType("timestamp with time zone");
+        modelBuilder.Entity<Product>()
+            .Property(p => p.CreatedAt)
+            .HasColumnType("timestamp with time zone");
+        modelBuilder.Entity<Product>()
+            .Property(p => p.UpdatedAt)
+            .HasColumnType("timestamp with time zone");
+        modelBuilder.Entity<CartItem>()
+            .Property(c => c.AddedAt)
+            .HasColumnType("timestamp with time zone");
+        modelBuilder.Entity<ProductSeller>()
+            .Property(ps => ps.AddedAt)
+            .HasColumnType("timestamp with time zone");
+        modelBuilder.Entity<Order>()
+            .Property(o => o.CreatedAt)
+            .HasColumnType("timestamp with time zone");
+        modelBuilder.Entity<Order>()
+            .Property(o => o.UpdatedAt)
+            .HasColumnType("timestamp with time zone");
 
         // Настройка связи: один пользователь → много товаров в корзине
         modelBuilder.Entity<CartItem>()
