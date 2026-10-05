@@ -37,7 +37,7 @@ export function ProductCartActions({
       await addToCart(productId, 1, { productName, price, imageUrl });
     } catch (error) {
       console.error('Ошибка при добавлении товара в корзину:', error);
-      window.alert('Не удалось добавить товар в корзину');
+      window.alert(error instanceof Error ? error.message : 'Не удалось добавить товар в корзину');
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +52,7 @@ export function ProductCartActions({
       await removeFromCart(productId);
     } catch (error) {
       console.error('Ошибка при удалении товара из корзины:', error);
-      window.alert('Не удалось удалить товар из корзины');
+      window.alert(error instanceof Error ? error.message : 'Не удалось удалить товар из корзины');
     } finally {
       setIsLoading(false);
     }

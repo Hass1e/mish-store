@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
+import { apiFetch } from '../../utils/api';
 import { ProductCard } from "../../components/ProductCard/ProductCard.tsx";
 import { ProductCardSkeleton } from '../../components/ProductCard/ProductCardSkeleton';
 import { CatalogSidebar } from './CatalogSidebar';
@@ -32,7 +33,7 @@ export function Catalog() {
   
   // Загружаем дерево категорий один раз при монтировании
   useEffect(() => {
-    fetch('/api/categories/tree')
+    apiFetch('/api/categories/tree')
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Ошибка загрузки категорий:', err))

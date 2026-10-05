@@ -1,14 +1,12 @@
-// mish.web/src/utils/OrderAPI.ts
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5073';
+import { API_BASE_URL, ENDPOINTS } from '../config';
 
 export function getFullImageUrl(imageUrl?: string): string {
-  if (!imageUrl) return '/placeholder.png';
+  if (!imageUrl) return `${ENDPOINTS.UPLOADS}/placeholder.jpg`;
   
-  // Если уже полный URL (например, с CDN) - возвращаем как есть
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     return imageUrl;
   }
   
-  // Относительный путь -> добавляем базовый URL API
-  return `${API_BASE_URL}${imageUrl}`;
+  const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+  return `${API_BASE_URL}${path}`;
 }

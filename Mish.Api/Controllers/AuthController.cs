@@ -126,11 +126,25 @@ public async Task<IActionResult> Login([FromBody] LoginRequest request)
 [HttpGet("me")]
 [Authorize]
 [EnableRateLimiting("fixed")]
-public IActionResult GetCurrentUser()
+public async Task<IActionResult> GetCurrentUser()
 {
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
     var username = User.FindFirstValue(ClaimTypes.Name);
     var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+    if (!int.TryParse(userId, out var parsedUserId)
+        || await _authService.GetByIdAsync(parsedUserId) is null)
+    {
+        Response.Cookies.Delete("accessToken", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = _authCookieSettings.Secure,
+            SameSite = _authCookieSettings.SameSite,
+            Path = "/"
+        });
+        return Unauthorized(new { message = "Сессия устарела. Войдите снова." });
+    }
 
     return Ok(new { userId, username, role });
 }

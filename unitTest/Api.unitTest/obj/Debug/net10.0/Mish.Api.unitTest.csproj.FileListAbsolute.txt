@@ -52,7 +52,6 @@
 /Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/Swashbuckle.AspNetCore.SwaggerGen.dll
 /Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/Swashbuckle.AspNetCore.SwaggerUI.dll
 /Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/System.IdentityModel.Tokens.Jwt.dll
-/Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/System.IO.Hashing.dll
 /Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/xunit.assert.dll
 /Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/xunit.core.dll
 /Users/aaa/mish/unitTest/Api.unitTest/bin/Debug/net10.0/xunit.execution.dotnet.dll

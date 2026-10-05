@@ -43,7 +43,7 @@ builder.Services.AddCors(options =>
 
 // === ДОБАВЛЕНО: Регистрация SQLite ===
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=app.db"));
+    options.UseSqlite("Data Source=Data/app.db"));
 
 
 // Program.cs (секция builder.Services)
@@ -168,7 +168,7 @@ using (var scope = app.Services.CreateScope())
                     Name = "Футболка Mish", 
                     Price = 1990, 
                     Description = "Базовая футболка", 
-                    ImageUrls = new List<string> { "/images/tshirt.jpg" }, // ✅ Массив!
+                    ImageUrls = new List<string> { "/uploads/T-shirt/T-shirt1.png" },
                     SKU = "TSH-001",
                     IsActive = true,
                     IsNew = true
@@ -178,7 +178,7 @@ using (var scope = app.Services.CreateScope())
                     Name = "Худи Mish", 
                     Price = 3490, 
                     Description = "Тёплое худи", 
-                    ImageUrls = new List<string> { "/images/hoodie.jpg" }, // ✅ Массив!
+                    ImageUrls = new List<string> { "/uploads/placeholder.jpg" },
                     SKU = "HOO-001",
                     IsActive = true
                 },
@@ -187,7 +187,7 @@ using (var scope = app.Services.CreateScope())
                     Name = "Кепка Mish", 
                     Price = 990, 
                     Description = "Кепка с логотипом", 
-                    ImageUrls = new List<string> { "/images/cap.jpg" }, // ✅ Массив!
+                    ImageUrls = new List<string> { "/uploads/placeholder.jpg" },
                     SKU = "CAP-001",
                     IsActive = true
                 }
@@ -195,6 +195,27 @@ using (var scope = app.Services.CreateScope())
             await context.SaveChangesAsync();
             Console.WriteLine("База данных успешно заполнена!");
         }
+
+        var legacySeedImages = new[]
+        {
+            (Sku: "TSH-001", OldUrl: "/images/tshirt.jpg", NewUrl: "/uploads/T-shirt/T-shirt1.png"),
+            (Sku: "HOO-001", OldUrl: "/images/hoodie.jpg", NewUrl: "/uploads/placeholder.jpg"),
+            (Sku: "CAP-001", OldUrl: "/images/cap.jpg", NewUrl: "/uploads/placeholder.jpg")
+        };
+        foreach (var imageFix in legacySeedImages)
+        {
+            var product = await context.Products.FirstOrDefaultAsync(p => p.SKU == imageFix.Sku);
+            if (product?.ImageUrls?.Contains(imageFix.OldUrl) == true)
+            {
+                product.ImageUrls = product.ImageUrls
+                    .Select(url => url == imageFix.OldUrl ? imageFix.NewUrl : url)
+                    .ToList();
+            }
+        }
+        await context.SaveChangesAsync();
+
+        await DbSeeder.SeedPermissionsAsync(context);
+        await DbSeeder.SeedCategoriesAsync(context);
     }
     catch (Exception ex)
     {
@@ -214,16 +235,6 @@ if (app.Environment.IsDevelopment())
 app.UseRateLimiter();
 
 app.MapControllers();
-app.Run();
-
-app.MapControllers(); // ← Обязательно! Иначе контроллеры не будут работать
-
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await DbSeeder.SeedPermissionsAsync(db);
-    await DbSeeder.SeedCategoriesAsync(db);
-    
-}
+app.MapFallbackToFile("index.html");
 
 app.Run();

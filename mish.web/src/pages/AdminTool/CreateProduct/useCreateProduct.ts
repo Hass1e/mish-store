@@ -2,6 +2,7 @@
 import { useState, useEffect, type ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { createProduct, updateProduct, getProductForEdit } from '../../../services/productService';
+import { apiFetch } from '../../../utils/api';
 //import { ENDPOINTS } from '../../../config';
 
 interface CategoryTree {
@@ -47,7 +48,7 @@ export function useCreateProduct() {
 
   // Загрузка категорий
   useEffect(() => {
-    fetch('/api/categories/tree')
+    apiFetch('/api/categories/tree')
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Ошибка загрузки категорий:', err));

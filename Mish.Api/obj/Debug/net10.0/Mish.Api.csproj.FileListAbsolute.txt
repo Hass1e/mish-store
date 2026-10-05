@@ -51,7 +51,6 @@
 /Users/aaa/mish/Mish.Api/bin/Debug/net10.0/System.Composition.Runtime.dll
 /Users/aaa/mish/Mish.Api/bin/Debug/net10.0/System.Composition.TypedParts.dll
 /Users/aaa/mish/Mish.Api/bin/Debug/net10.0/System.IdentityModel.Tokens.Jwt.dll
-/Users/aaa/mish/Mish.Api/bin/Debug/net10.0/System.IO.Hashing.dll
 /Users/aaa/mish/Mish.Api/bin/Debug/net10.0/cs/Microsoft.CodeAnalysis.resources.dll
 /Users/aaa/mish/Mish.Api/bin/Debug/net10.0/de/Microsoft.CodeAnalysis.resources.dll
 /Users/aaa/mish/Mish.Api/bin/Debug/net10.0/es/Microsoft.CodeAnalysis.resources.dll

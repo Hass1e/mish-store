@@ -16,15 +16,12 @@ public class ProductService : IProductService
 {
     private readonly AppDbContext _context;
     private readonly string _uploadsPath;
-    private readonly string _baseUrl;
 
     public ProductService(AppDbContext context, IWebHostEnvironment env, IConfiguration config)
     {
         _context = context;
         _uploadsPath = Path.Combine(env.ContentRootPath, "wwwroot", "uploads");
         Directory.CreateDirectory(_uploadsPath);
-        _baseUrl = config["ApiSettings:BaseUrl"]
-            ?? throw new InvalidOperationException("Ключ ApiSettings:BaseUrl отсутствует.");
     }
 
     // ✅ ОПТИМИЗИРОВАННЫЙ МЕТОД ДЛЯ КАТАЛОГА (без дублирования кода)
@@ -144,7 +141,7 @@ public class ProductService : IProductService
                 ? (product.ImageUrls.First().StartsWith("/uploads/") || product.ImageUrls.First().StartsWith("http")
                     ? product.ImageUrls.First()
                     : $"/uploads/{product.ImageUrls.First()}")
-                : $"{_baseUrl}/uploads/placeholder.jpg",
+                : "/uploads/placeholder.jpg",
             Rating = product.Rating,
             Tags = product.Tags ?? new List<string>()
         };
@@ -366,7 +363,7 @@ public class ProductService : IProductService
                 Name = p.Name,
                 Price = p.Price,
                 OldPrice = p.OldPrice,
-                MainImageUrl = p.ImageUrls.FirstOrDefault() ?? $"{_baseUrl}/uploads/placeholder.jpg",
+                MainImageUrl = p.ImageUrls.FirstOrDefault() ?? "/uploads/placeholder.jpg",
                 IsNew = p.IsNew,
                 IsHit = p.IsHit,
                 Rating = (double)p.Rating
@@ -395,7 +392,7 @@ public class ProductService : IProductService
             OldPrice = product.OldPrice,
             Description = product.Description,
             ImageUrls = product.ImageUrls ?? new List<string>(),
-            MainImageUrl = product.ImageUrls?.FirstOrDefault() ?? $"{_baseUrl}/uploads/placeholder.jpg",
+            MainImageUrl = product.ImageUrls?.FirstOrDefault() ?? "/uploads/placeholder.jpg",
             Rating = product.Rating,
             Stock = product.Stock,
             SKU = product.SKU,

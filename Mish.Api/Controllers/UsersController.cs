@@ -5,6 +5,7 @@ using Mish.Api.Dtos;
 using System.Security.Claims;
 using Mish.Api.Extensions;
 using Microsoft.AspNetCore.RateLimiting;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Mish.Api.Controllers;
 
@@ -25,7 +26,7 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetProfile()
     {
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userIdClaim = GetCurrentUserIdClaim();
 
         if (!int.TryParse(userIdClaim, out var userId))
             return Unauthorized(new { message = "Неверный токен" });
@@ -33,7 +34,10 @@ public class UsersController : ControllerBase
         var user = await _userService.GetByIdAsync(userId);
         
         if (user == null)
-            return NotFound(new { message = "Пользователь не найден" });
+        {
+            Response.Cookies.Delete("accessToken", new CookieOptions { Path = "/" });
+            return Unauthorized(new { message = "Сессия устарела. Войдите снова." });
+        }
 
         return Ok(new 
         { 
@@ -49,10 +53,16 @@ public class UsersController : ControllerBase
     [EnableRateLimiting("auth")] // Применяем более строгий Rate Limiting к изменению пароля
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
     {
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userIdClaim = GetCurrentUserIdClaim();
 
         if (!int.TryParse(userIdClaim, out var userId))
             return Unauthorized();
+
+        if (await _userService.GetByIdAsync(userId) is null)
+        {
+            Response.Cookies.Delete("accessToken", new CookieOptions { Path = "/" });
+            return Unauthorized(new { message = "Сессия устарела. Войдите снова." });
+        }
 
         try
         {
@@ -69,10 +79,16 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<IActionResult> DeleteAccount()
     {
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userIdClaim = GetCurrentUserIdClaim();
 
         if (!int.TryParse(userIdClaim, out var userId))
             return Unauthorized();
+
+        if (await _userService.GetByIdAsync(userId) is null)
+        {
+            Response.Cookies.Delete("accessToken", new CookieOptions { Path = "/" });
+            return Unauthorized(new { message = "Сессия устарела. Войдите снова." });
+        }
 
         await _userService.DeleteUserAsync(userId);
         
@@ -81,8 +97,9 @@ public class UsersController : ControllerBase
         return Ok(new { message = "Аккаунт удален" });
     }
 
-
-     
+    private string? GetCurrentUserIdClaim() =>
+        User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
 }
 

@@ -1,0 +1,18 @@
+services:
+  mish-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mish-store
+    ports:
+      - "5073:8080" # Снаружи 5073, внутри 8080
+    env_file:
+      - .env
+    volumes:
+      - sqlite-data:/app/Data
+      - uploads-data:/app/wwwroot/uploads
+    restart: unless-stopped
+
+volumes:
+  sqlite-data:
+  uploads-data:

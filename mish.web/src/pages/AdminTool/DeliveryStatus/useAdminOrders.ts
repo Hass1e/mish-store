@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '../../../utils/api';
 
 export interface AdminOrderItem {
   id: number;
@@ -51,9 +52,7 @@ export function useAdminOrders() {
       if (filter.status) params.append('status', filter.status);
       if (filter.search) params.append('search', filter.search);
 
-      const res = await fetch(`/api/orders/admin?${params.toString()}`, {
-        credentials: 'include',
-      });
+      const res = await apiFetch(`/api/orders/admin?${params.toString()}`);
 
       if (!res.ok) {
         throw new Error(`Ошибка загрузки: ${res.status}`);
@@ -92,11 +91,10 @@ export function useAdminOrders() {
 
   const updateOrderStatus = async (orderId: number, newStatus: string) => {
     try {
-      const res = await fetch(`/api/orders/${orderId}/status`, {
+      const res = await apiFetch(`/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
-        credentials: 'include',
       });
 
       if (!res.ok) {
