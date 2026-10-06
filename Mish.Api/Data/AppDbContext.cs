@@ -40,6 +40,9 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         modelBuilder.Entity<User>()
             .Property(u => u.CreatedAt)
             .HasColumnType("timestamp with time zone");
+        modelBuilder.Entity<Category>()
+            .HasIndex(category => category.Slug)
+            .IsUnique();
         modelBuilder.Entity<Product>()
             .Property(p => p.CreatedAt)
             .HasColumnType("timestamp with time zone");

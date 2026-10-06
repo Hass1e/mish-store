@@ -25,6 +25,9 @@
                 <li>
                   <Link to="/Change-order" target="_blank" rel="noreferrer">Изменение статуса заказов</Link>
                 </li>
+                 <li>
+                  <Link to="/Create/categories" target="_blank" rel="noreferrer">Создание новых категорий</Link>
+                </li>
               </div>
             </div>
           </div>

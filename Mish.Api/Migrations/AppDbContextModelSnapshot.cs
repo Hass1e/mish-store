@@ -77,6 +77,9 @@ namespace Mish.Api.Migrations
 
                     b.HasIndex("ParentId");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("Categories");
                 });
 

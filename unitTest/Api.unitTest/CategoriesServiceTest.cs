@@ -164,4 +164,74 @@ public sealed class CategoriesServiceTests
         var result = await service.GetTreeAsync(CancellationToken.None);
         Assert.Single(result); // Только "Корень", "Сирота" игнорируется, так как у нее нет валидного родителя в дереве
     }
+
+    [Fact]
+    public async Task CreateAsync_WithParent_ShouldAssignLowestFreeIdFromRootBlock()
+    {
+        var categories = new List<Category>
+        {
+            new() { Id = 1, Name = "Одежда", Slug = "clothing" },
+            new() { Id = 2, Name = "Футболки", Slug = "tshirts", ParentId = 1 },
+            new() { Id = 3, Name = "Худи", Slug = "hoodies", ParentId = 1 },
+            new() { Id = 4, Name = "Брюки", Slug = "pants", ParentId = 1 },
+            new() { Id = 5, Name = "Куртки", Slug = "jackets", ParentId = 1 },
+            new() { Id = 1001, Name = "Обувь", Slug = "shoes" },
+            new() { Id = 1002, Name = "Кроссовки", Slug = "sneakers", ParentId = 1001 },
+            new() { Id = 1003, Name = "Ботинки", Slug = "boots", ParentId = 1001 },
+            new() { Id = 2001, Name = "Аксессуары", Slug = "accessories" }
+        };
+        var context = CreateDbContext(categories);
+        var service = new CategoriesService(context);
+
+        var created = await service.CreateAsync(
+            new CreateCategoryRequest { Name = "Сандалии", Slug = "sandalii", ParentId = 1001 },
+            CancellationToken.None);
+
+        Assert.Equal(1004, created.Id);
+        Assert.Equal("sandalii", created.Slug);
+        Assert.Equal(1001, await context.Categories
+            .Where(category => category.Id == created.Id)
+            .Select(category => category.ParentId)
+            .SingleAsync());
+    }
+
+    [Fact]
+    public async Task CreateAsync_WithoutParent_ShouldAssignNextUnusedBlockRootId()
+    {
+        var categories = new List<Category>
+        {
+            new() { Id = 1, Name = "Одежда", Slug = "clothing" },
+            new() { Id = 1001, Name = "Обувь", Slug = "shoes" },
+            new() { Id = 2001, Name = "Аксессуары", Slug = "accessories" }
+        };
+        var context = CreateDbContext(categories);
+        var service = new CategoriesService(context);
+
+        var created = await service.CreateAsync(
+            new CreateCategoryRequest { Name = "Спорт", Slug = "sport" },
+            CancellationToken.None);
+
+        Assert.Equal(3001, created.Id);
+        Assert.Null(await context.Categories
+            .Where(category => category.Id == created.Id)
+            .Select(category => category.ParentId)
+            .SingleAsync());
+    }
+
+    [Fact]
+    public async Task CreateAsync_WithDuplicateSlug_ShouldRejectCategory()
+    {
+        var context = CreateDbContext(new List<Category>
+        {
+            new() { Id = 1, Name = "Одежда", Slug = "clothing" }
+        });
+        var service = new CategoriesService(context);
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
+            service.CreateAsync(
+                new CreateCategoryRequest { Name = "Новая одежда", Slug = "CLOTHING" },
+                CancellationToken.None));
+
+        Assert.Contains("slug уже существует", exception.Message);
+    }
 }

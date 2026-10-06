@@ -16,7 +16,7 @@ export function Footer() {
           <p>Краткая информация о компании или проекте.</p>
           {hasPermission('products.create') && (
           <Link to="/atool" style={{ margin: "110px" }}>
-          Create product
+          Admin Tool
           </Link> )}
         </div>
 

@@ -22,7 +22,7 @@ const ProductManager = lazy(() => import('./pages/AdminTool/CreateProduct/Produc
 const Products = lazy(() => import('./pages/Products.tsx').then(m => ({ default: m.Products as ComponentType })))
 const AdminOrders = lazy(() => import('./pages/AdminTool/DeliveryStatus/AdminOrders.tsx').then(m => ({ default: m.AdminOrders as ComponentType })))
 const Catalog = lazy(() => import('../src/pages/Сatalog/Catalog.tsx').then(m => ({ default: m.Catalog as ComponentType })))
-
+const CategoryManager = lazy(() => import('./pages/AdminTool/CreateCategory/CategoryManager/CategoryManager.tsx').then(m => ({ default: m.CategoryManager as ComponentType })))
 
 // Компонент-заглушка, пока страница скачивается
 const PageLoader = () => <div style={{ minHeight: '50vh' }}>Загрузка...</div>
@@ -94,6 +94,16 @@ const router = createBrowserRouter([
                     <RequirePermission permission="products.edit_any">
                         <Suspense fallback={<PageLoader />}>
                             <ProductManager  />
+                        </Suspense>
+                    </RequirePermission>
+                ),
+            },
+            {
+                path: "Create/categories",
+                element: (
+                    <RequirePermission permission="products.edit_any">
+                        <Suspense fallback={<PageLoader />}>
+                            <CategoryManager />
                         </Suspense>
                     </RequirePermission>
                 ),

@@ -1,0 +1,216 @@
+/* CategoryTreeEditor.css */
+
+.category-tree-editor {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  font-family: 'Inter', system-ui, sans-serif;
+  max-width: 800px; /* Ограничим ширину для читаемости */
+}
+
+.tree-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Небольшой отступ между узлами одного уровня */
+}
+
+/* Обертка узла */
+.tree-node-wrapper {
+  position: relative;
+}
+
+.tree-node-wrapper + .tree-node-wrapper {
+  margin-top: 4px;
+}
+
+/* Строка с названием и плюсом */
+.node-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  min-height: 44px;
+}
+
+.node-row--subcategory {
+  margin-left: 28px;
+  padding-left: 18px;
+  border-left: 2px solid #dee2e6;
+  border-radius: 0 8px 8px 0;
+  background: #f8f9fa;
+}
+
+.subcategory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.node-row--subcategory .node-name {
+  color: #495057;
+  font-size: 14px;
+}
+
+.node-row:hover {
+  background: #f8f9fa;
+}
+
+.node-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #212529;
+}
+
+/* Кнопка плюс */
+.add-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f3f5;
+  color: #495057;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.add-btn:hover:not(:disabled) {
+  background: #e9ecef;
+  transform: scale(1.1);
+  color: #212529;
+}
+
+/* Контейнер формы */
+.inline-form-container {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.inline-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: #fff;
+  padding: 8px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.input-field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  min-width: 0; /* Чтобы flex не ломал input */
+}
+
+.input-field:focus {
+  border-color: #4dabf7;
+  box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.1);
+}
+
+.save-btn {
+  padding: 8px 16px;
+  background: #228be6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #1c7ed6;
+}
+
+.save-btn:disabled {
+  background: #a5d8ff;
+  cursor: wait;
+}
+
+.cancel-btn {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  color: #868e96;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-btn:hover {
+  background: #f1f3f5;
+  color: #495057;
+}
+
+.error-text {
+  color: #e03131;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-left: 4px;
+}
+
+/* Корневая кнопка */
+.root-actions {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f1f3f5;
+}
+
+.add-root-btn {
+  width: 100%;
+  padding: 14px;
+  border: 2px dashed #dee2e6;
+  background: transparent;
+  color: #868e96;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.add-root-btn:hover {
+  border-color: #4dabf7;
+  color: #4dabf7;
+  background: #f1f9ff;
+}
+
+.root-form {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 12px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #adb5bd;
+  padding: 40px;
+  font-size: 16px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: #868e96;
+}

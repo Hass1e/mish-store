@@ -13,6 +13,16 @@ namespace Mish.Api.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql(
+                """
+                CREATE OR REPLACE FUNCTION public.unicode_lower(value text)
+                RETURNS text
+                LANGUAGE sql
+                IMMUTABLE
+                PARALLEL SAFE
+                AS $$ SELECT lower(value) $$;
+                """);
+
             migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
@@ -291,6 +301,8 @@ namespace Mish.Api.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("DROP FUNCTION IF EXISTS public.unicode_lower(text);");
+
             migrationBuilder.DropTable(
                 name: "CartItems");
 
