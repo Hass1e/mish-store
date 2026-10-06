@@ -1,6 +1,10 @@
 node_modules
 .DS_Store
+<<<<<<< HEAD
 **/bin/
 **/obj/
 *.user
 *.suo
+=======
+.env
+>>>>>>> backend-protection

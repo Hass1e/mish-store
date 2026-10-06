@@ -38,12 +38,15 @@ export function Security() {
     if (!window.confirm('Вы уверены? Это действие нельзя отменить!')) return;
 
     try {
-      const res = await apiFetch('/api/users/delete-account', { method: 'DELETE' });
+      const res = await apiFetch('/api/users/account', { method: 'DELETE' });
       if (res.ok) {
         window.location.href = '/';
+      } else {
+        const error = await res.json().catch(() => null);
+        alert(error?.message || `Не удалось удалить аккаунт (${res.status})`);
       }
-    } catch {
-      alert('Ошибка при удалении аккаунта');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Ошибка при удалении аккаунта');
     }
   };
 

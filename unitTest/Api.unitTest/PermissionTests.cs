@@ -6,8 +6,15 @@ using Xunit;
 
 namespace Mish.Api.Tests;
 
+/// <summary>
+/// Тесты системы разрешений (Permissions).
+/// Проверяет работу политик авторизации и обработчика требований.
+/// </summary>
 public class PermissionTests
 {
+    /// <summary>
+    /// Тест 15: Проверяет, что политики (products.create, products.edit_any и т.д.) регистрируются в системе.
+    /// </summary>
     [Theory]
     [InlineData("products.create")]
     [InlineData("products.edit_any")]
@@ -27,6 +34,10 @@ public class PermissionTests
             permissionRequirement.Permission == permission);
     }
 
+    /// <summary>
+    /// Тест 16: Права в формате "perm1,perm2,perm3" корректно парсятся из JWT токена.
+    /// Проверяет что comma-separated строка обрабатывается правильно.
+    /// </summary>
     [Fact]
     public async Task HandleRequirementAsync_WithCommaSeparatedPermissions_ShouldSucceed()
     {
@@ -51,6 +62,9 @@ public class PermissionTests
         Assert.True(context.HasSucceeded, "Политика должна быть успешно выполнена, так как право есть в строке");
     }
 
+    /// <summary>
+    /// Тест 17: Запрос отклоняется если запрашиваемого права нет в списке прав пользователя.
+    /// </summary>
     [Fact]
     public async Task HandleRequirementAsync_MissingPermission_ShouldFail()
     {

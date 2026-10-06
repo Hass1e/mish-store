@@ -16,21 +16,20 @@ public class CartService : ICartService
 
     public async Task<CartResponse> GetCartAsync(int userId)
     {
-        var items = await _context.CartItems
+        var cartItems = await _context.CartItems
             .Include(c => c.Product)
             .Where(c => c.UserId == userId)
-            .Select(c => new CartItemResponse
-            {
-                Id = c.Id,
-                ProductId = c.ProductId,
-                ProductName = c.Product.Name,
-                Price = c.Product.Price,
-                ImageUrl = c.Product.ImageUrls != null && c.Product.ImageUrls.Count > 0 
-                    ? c.Product.ImageUrls[0] 
-                    : null,
-                Quantity = c.Quantity
-            })
             .ToListAsync();
+
+        var items = cartItems.Select(c => new CartItemResponse
+        {
+            Id = c.Id,
+            ProductId = c.ProductId,
+            ProductName = c.Product.Name,
+            Price = c.Product.Price,
+            ImageUrl = c.Product.ImageUrls.FirstOrDefault(),
+            Quantity = c.Quantity
+        }).ToList();
 
         return new CartResponse
         {
@@ -45,7 +44,7 @@ public class CartService : ICartService
         // Проверяем, существует ли товар
         var product = await _context.Products.FindAsync(request.ProductId);
         if (product == null)
-            throw new ArgumentException("Товар не найден");
+            throw new KeyNotFoundException("Товар не найден");
 
         // Ищем, есть ли уже этот товар в корзине
         var existingItem = await _context.CartItems
@@ -68,6 +67,24 @@ public class CartService : ICartService
         await _context.SaveChangesAsync();
         
         // Возвращаем обновленную корзину
+        return await GetCartAsync(userId);
+    }
+
+    public async Task<CartResponse> DecreaseQuantityAsync(int userId, int productId)
+    {
+        var item = await _context.CartItems
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == productId);
+
+        if (item != null)
+        {
+            if (item.Quantity <= 1)
+                _context.CartItems.Remove(item);
+            else
+                item.Quantity--;
+
+            await _context.SaveChangesAsync();
+        }
+
         return await GetCartAsync(userId);
     }
 

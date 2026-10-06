@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { mapApiToProduct } from '../../components/ProductCard/mapApiToProduct';
+import { apiFetch } from '../../utils/api';
 
 interface ProductPage {
   items: Parameters<typeof mapApiToProduct>[0][];
@@ -48,7 +49,7 @@ export function useCatalog(
       if (search.trim()) params.set('search', search.trim());
       if (sort) params.set('sort', sort);
 
-      const response = await fetch(`/api/products?${params}`, { signal: controller.signal });
+      const response = await apiFetch(`/api/products?${params}`, { signal: controller.signal });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const data: ProductPage = await response.json();

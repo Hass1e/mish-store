@@ -157,8 +157,24 @@ export function useCart() {
 
   // ✅ Упрощенная логика: просто добавляем -1. Если станет <= 0, addToCart сам удалит товар.
   const decreaseQuantity = useCallback(async (productId: number) => {
+    if (isAuthenticated) {
+      const data = await cartApi.decreaseQuantity(productId);
+      setCart({
+        items: data.items.map((item: any) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          productName: item.productName,
+          price: item.price,
+          imageUrl: item.imageUrl
+        })),
+        totalItems: data.totalItemsCount,
+        totalPrice: data.totalPrice
+      });
+      return;
+    }
+
     await addToCart(productId, -1);
-  }, [addToCart]);
+  }, [addToCart, isAuthenticated]);
 
   return {
     cart,

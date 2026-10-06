@@ -63,6 +63,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         setPassword('');
         handleCloseWithAnimation(); 
       } else {
+        if (response.status === 429) return;
+
         const errorText = await response.text();
         alert(`Ошибка: ${errorText || response.statusText}`);
       }

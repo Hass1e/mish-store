@@ -2,6 +2,7 @@ import { useState } from 'react';
 //import { useNavigate } from 'react-router-dom';
 import { useCartContext } from '../CartContext.tsx';
 import { useAuth } from '../../../../context/AuthContext';
+import { apiFetch } from '../../../../utils/api';
 import './CartSummary.css';
 //import AuthModal from '../../../../components/AuthModal/AuthModal.tsx'
 
@@ -26,11 +27,10 @@ const handleCheckout = async () => {
   setIsProcessing(true);
   
   try {
-    const response = await fetch('/api/orders', {
+    const response = await apiFetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
-      credentials: 'include', 
     });
 
     if (!response.ok) {

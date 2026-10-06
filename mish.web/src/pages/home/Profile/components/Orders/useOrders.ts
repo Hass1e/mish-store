@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../../../../../utils/api';
 
 export interface OrderItem {
   id: number;
@@ -26,8 +27,7 @@ export function useOrders() {
   useEffect(() => {
     const fetchOrders = async () => { 
       try {
-        // credentials: 'include' обязателен для HttpOnly куки
-        const res = await fetch('/api/orders/my', { credentials: 'include' });
+        const res = await apiFetch('/api/orders/my');
         if (res.ok) {
           const data = await res.json();
           setOrders(data);
@@ -66,4 +66,3 @@ export function useOrders() {
 
   return { orders, loading, expandedOrderId, toggleOrder, getStatusColor, formatDate };
 }
-

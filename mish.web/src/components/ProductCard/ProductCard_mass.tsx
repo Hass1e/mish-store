@@ -2,12 +2,13 @@ import { ProductCard } from "./ProductCard";
 import { ProductCardSkeleton } from './ProductCardSkeleton'; 
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import { mapApiToProduct } from "./mapApiToProduct.tsx";
+import { apiFetch } from "../../utils/api";
 import './ProductCard_message.css';
 
 
 async function fetchProducts(page: number, size: number) {
     try {
-        const res = await fetch(`/api/products?page=${page}&size=${size}`);
+        const res = await apiFetch(`/api/products?page=${page}&size=${size}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();

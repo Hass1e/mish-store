@@ -4,11 +4,19 @@ using Xunit;
 
 namespace Mish.Api.Tests;
 
+/// <summary>
+/// Тесты OrderService (машина состояний заказов).
+/// Проверяет валидацию переходов между статусами заказа.
+/// Допустимые переходы: Pending→Paid→Processing→Shipped→Delivered.
+/// Отменённый заказ (Cancelled) можно получить из любого статуса.
+/// </summary>
 public class OrderServiceTests
 {
-    // Тестируем машину состояний БЕЗ создания сервиса и БД
-    // Метод IsStatusTransitionAllowed теперь публичный и статический по своей природе
-    
+    /// <summary>
+    /// Тест 13: Валидирует корректные и некорректные переходы статусов заказа.
+    /// Корректные: Pending→Paid, Pending→Cancelled, Processing→Shipped, Shipped→Delivered, Shipped→Cancelled.
+    /// Некорректные: Pending→Shipped, Delivered→Pending, Cancelled→Paid.
+    /// </summary>
     [Theory]
     [InlineData(OrderStatuses.Pending, OrderStatuses.Paid, true)]
     [InlineData(OrderStatuses.Pending, OrderStatuses.Cancelled, true)]
@@ -21,23 +29,13 @@ public class OrderServiceTests
     public void IsStatusTransitionAllowed_ShouldValidateCorrectly(
         string current, string next, bool expected)
     {
-        // Создаем сервис только для доступа к методу, 
-        // но НЕ используем БД в этом тесте
-        // Лучше всего сделать метод static, но если он в классе сервиса - 
-        // нам придется создать экземпляр. 
-        // Но так как метод НЕ использует _db, можно использовать Moq с CallBase=true
-        // ИЛИ просто протестировать через helper класс
-        
-        // ВАРИАНТ 1: Если можешь сделать метод static в OrderService - сделай
-        // ВАРИАНТ 2: Используем Moq с CallBase (но это сложно для DbContext)
-        
-        // ПРОСТОЙ ВАРИАНТ для pet-проекта: 
-        // Перенеси логику в отдельный static класс OrderStateValidator
-        // И тестируй его напрямую
         var result = OrderStateValidator.IsAllowed(current, next);
         Assert.Equal(expected, result);
     }
 
+    /// <summary>
+    /// Тест 14: Переход в тот же статус (Pending→Pending) разрешён.
+    /// </summary>
     [Fact]
     public void IsStatusTransitionAllowed_SameStatus_ShouldReturnTrue()
     {

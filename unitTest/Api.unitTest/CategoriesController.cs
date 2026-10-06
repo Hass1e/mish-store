@@ -11,8 +11,15 @@ using Xunit;
 
 namespace Mish.Api.Tests.Controllers;
 
+/// <summary>
+/// Тесты CategoriesController.
+/// Проверяет API контроллер для работы с деревом категорий.
+/// </summary>
 public class CategoriesControllerTests
 {
+    /// <summary>
+    /// Тест 6: Метод GetTree возвращает HTTP 200 с деревом категорий от сервиса.
+    /// </summary>
     [Fact]
     public async Task GetTree_ShouldReturnOkResult_WithTreeFromService()
     {
@@ -42,6 +49,9 @@ public class CategoriesControllerTests
         mockService.Verify(s => s.GetTreeAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    /// <summary>
+    /// Тест 7: Возвращает пустой список когда сервис возвращает пустой результат.
+    /// </summary>
     [Fact]
     public async Task GetTree_ShouldReturnEmptyList_WhenServiceReturnsEmpty()
     {

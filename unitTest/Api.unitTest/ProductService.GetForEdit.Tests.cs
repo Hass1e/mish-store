@@ -5,8 +5,16 @@ using Xunit;
 
 namespace Mish.Api.Tests.Services;
 
+/// <summary>
+/// Тесты ProductService: метод GetForEditAsync.
+/// Проверяет логику доступа к редактированию товаров.
+/// Права: products.edit_any (админ) vs products.edit_own (владелец).
+/// </summary>
 public class ProductServiceGetForEditTests
 {
+    /// <summary>
+    /// Тест 25: Админ (products.edit_any) может редактировать любой товар.
+    /// </summary>
     [Fact]
     public async Task GetForEditAsync_Admin_CanEditAnyProductEvenWithoutOwner()
     {
@@ -26,6 +34,9 @@ public class ProductServiceGetForEditTests
         Assert.Equal("Legacy Product", result.Name);
     }
 
+    /// <summary>
+    /// Тест 26: Владелец товара может редактировать свой товар.
+    /// </summary>
     [Fact]
     public async Task GetForEditAsync_Owner_CanEditOwnProduct()
     {
@@ -48,6 +59,9 @@ public class ProductServiceGetForEditTests
         Assert.Equal(10, result.Id);
     }
 
+    /// <summary>
+    /// Тест 27: Не-владелец получает null при попытке редактирования чужого товара.
+    /// </summary>
     [Fact]
     public async Task GetForEditAsync_NonOwnerSeller_CannotEdit_ReturnsNull()
     {
@@ -68,6 +82,9 @@ public class ProductServiceGetForEditTests
         Assert.Null(result);
     }
 
+    /// <summary>
+    /// Тест 28: Запрос на несуществующий товар возвращает null.
+    /// </summary>
     [Fact]
     public async Task GetForEditAsync_ProductNotFound_ReturnsNull()
     {

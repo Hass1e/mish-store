@@ -68,7 +68,7 @@ if (!response.ok) {
 };
 
 export async function getProductForEdit(id: number) {
-  const response = await fetch(`/api/products/${id}/edit`, {
+  const response = await apiFetch(`/api/products/${id}/edit`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('token')}` // Или откуда ты берешь токен
@@ -87,7 +87,7 @@ export async function getProductForEdit(id: number) {
 export async function updateProduct(id: number, formData: FormData) {
   const token = localStorage.getItem('token'); // Или cookie
   
-  const response = await fetch(`/api/products/${id}`, {
+  const response = await apiFetch(`/api/products/${id}`, {
     method: 'PUT',
     headers: {
       'Authorization': `Bearer ${token}`
@@ -111,7 +111,7 @@ export async function updateProduct(id: number, formData: FormData) {
 export async function getManagedProducts(page: number = 1, size: number = 50) {
   const token = localStorage.getItem('token');
   
-  const response = await fetch(`/api/products/managed?page=${page}&size=${size}`, {
+  const response = await apiFetch(`/api/products/managed?page=${page}&size=${size}`, {
     method: 'GET',
     headers: { 'Authorization': `Bearer ${token}` }
   });

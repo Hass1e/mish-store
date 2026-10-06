@@ -5,10 +5,16 @@ using Mish.Api.DTOs;
 using Mish.Api.Services;
 using Mish.Api.Extensions;
 namespace Mish.Api.Controllers;
+using Microsoft.AspNetCore.RateLimiting;
 
+
+/// <summary>
+/// Контроллер для управления заказами пользователя.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
+[EnableRateLimiting("fixed")]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
@@ -27,6 +33,7 @@ public class OrdersController : ControllerBase
     /// <summary>
     /// Создать заказ из текущей корзины пользователя.
     /// </summary>
+    [EnableRateLimiting("auth")] // Применяем более строгий Rate Limiting к созданию заказа
     [HttpPost]
     public async Task<ActionResult<OrderResponseDto>> CreateOrder([FromBody] CreateOrderDto dto)
     {

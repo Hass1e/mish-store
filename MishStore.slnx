@@ -4,4 +4,5 @@
     <Project Path="unitTest/Api.unitTest/Mish.Api.unitTest.csproj" />
   </Folder>
   <Project Path="Mish.Api/Mish.Api.csproj" />
+  <Project Path="Mish.DataMigrator/Mish.DataMigrator.csproj" />
 </Solution>

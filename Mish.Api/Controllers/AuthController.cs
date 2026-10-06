@@ -3,8 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mish.Api.Dtos;
 using Mish.Api.Services;
+using Mish.Api.Configuration;
+using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt; // Для JwtRegisteredClaimNames
 using System.Security.Claims;           // Для ClaimTypes
+using Mish.Api.Attributes;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Mish.Api.Controllers;
 
@@ -13,15 +17,23 @@ namespace Mish.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly ILogger<AuthController> _logger;
+    private readonly AuthCookieSettings _authCookieSettings;
 
-    public AuthController(IAuthService authService)
+    public AuthController(
+        IAuthService authService,
+        ILogger<AuthController> logger,
+        IOptions<AuthCookieSettings> authCookieSettings)
     {
         _authService = authService;
+        _logger = logger;
+        _authCookieSettings = authCookieSettings.Value;
     }
 
 
 [HttpPost("register")] 
 [AllowAnonymous]
+[EnableRateLimiting("auth")] // Применяем Rate Limiting к регистрации
 public async Task<IActionResult> Register([FromBody] RegisterRequest request)
 {
     try
@@ -45,54 +57,65 @@ public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     }
 }
 
-    [HttpPost("login")]
-    [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+[HttpPost("login")]
+[AllowAnonymous]
+[TypeFilter(typeof(BruteForceProtectionAttribute))]
+public async Task<IActionResult> Login([FromBody] LoginRequest request)
+{
+    try
     {
-        try
+        var response = await _authService.LoginAsync(request);
+
+        // ✅ ВАЖНО: Всегда возвращаем 401 при ошибке входа
+        // Это триггерит BruteForceProtectionAttribute для увеличения счетчика
+        if (response == null)
         {
-            // ⚠️ Убедись, что метод LoginAsync реализован в AuthService!
-            var response = await _authService.LoginAsync(request);
+            return Unauthorized(new { message = "Неверный логин или пароль" });
+        }
 
-            if (response == null)
-            {
-                return NotFound(new { message = "Пользователь не найден" });
-            }
-
-            Response.Cookies.Append("accessToken", response.AccessToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = false,           // Обязательно false для http://localhost
-                SameSite = SameSiteMode.Lax, // Lax — самый безопасный компромисс для localhost
-                Expires = DateTime.UtcNow.AddMinutes(4320),
-                Path = "/",
-                
-            });
+        Response.Cookies.Append("accessToken", response.AccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = _authCookieSettings.Secure, // Используем настройки из конфигурации appsettings.json
+            SameSite = _authCookieSettings.SameSite,  
+            Expires = DateTimeOffset.UtcNow.AddMinutes(_authCookieSettings.ExpirationMinutes),
+            Path = "/",
+        });
 
         return Ok(new 
         { 
             userId = response.UserId,
             username = response.Username,
             role = response.Role,
-            accessToken = response.AccessToken // Токен должен быть доступен фронтенду для fallback
-            
+            accessToken = response.AccessToken
         });
     }
     catch (UnauthorizedAccessException ex)
     {
-        return Unauthorized(new { message = ex.Message });
+        // ⚠️ Логируем реальную причину на сервере
+        _logger.LogWarning(ex, "Попытка входа с неверными учетными данными");
+        
+        // ✅ Клиенту отдаем универсальное сообщение (не раскрываем детали)
+        return Unauthorized(new { message = "Неверный логин или пароль" });
+    }
+    catch (Exception ex)
+    {
+        // Ловим любые другие непредвиденные ошибки
+        _logger.LogError(ex, "Критическая ошибка при попытке входа");
+        return StatusCode(500, new { message = "Произошла внутренняя ошибка сервера" });
     }
 }
 
     [HttpPost("logout")]
     [AllowAnonymous]
+    [EnableRateLimiting("fixed")]
     public IActionResult Logout()
     {
         Response.Cookies.Delete("accessToken", new CookieOptions
         {
             HttpOnly = true,
-            Secure = false,
-            SameSite = SameSiteMode.Unspecified,
+            Secure = _authCookieSettings.Secure,
+            SameSite = _authCookieSettings.SameSite,
             Path = "/"
         });
 
@@ -102,11 +125,26 @@ public async Task<IActionResult> Register([FromBody] RegisterRequest request)
 // AuthController.cs
 [HttpGet("me")]
 [Authorize]
-public IActionResult GetCurrentUser()
+[EnableRateLimiting("fixed")]
+public async Task<IActionResult> GetCurrentUser()
 {
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
     var username = User.FindFirstValue(ClaimTypes.Name);
     var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+    if (!int.TryParse(userId, out var parsedUserId)
+        || await _authService.GetByIdAsync(parsedUserId) is null)
+    {
+        Response.Cookies.Delete("accessToken", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = _authCookieSettings.Secure,
+            SameSite = _authCookieSettings.SameSite,
+            Path = "/"
+        });
+        return Unauthorized(new { message = "Сессия устарела. Войдите снова." });
+    }
 
     return Ok(new { userId, username, role });
 }
@@ -114,6 +152,7 @@ public IActionResult GetCurrentUser()
 
 [HttpGet("debug-cookies")]
 [AllowAnonymous]
+[EnableRateLimiting("fixed")]
 public IActionResult DebugCookies()
 {
     var cookies = Request.Cookies;

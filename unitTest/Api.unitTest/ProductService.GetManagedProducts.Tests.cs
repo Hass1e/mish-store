@@ -5,8 +5,16 @@ using Xunit;
 
 namespace Mish.Api.Tests.Services;
 
+/// <summary>
+/// Тесты ProductService: метод GetManagedProductsAsync.
+/// Проверяет фильтрацию товаров по правам доступа и пагинацию.
+/// Админ видит все товары, продавец — только свои.
+/// </summary>
 public class ProductServiceGetManagedTests
 {
+    /// <summary>
+    /// Тест 29: Админ видит все товары в системе.
+    /// </summary>
     [Fact]
     public async Task GetManagedProductsAsync_AdminUser_ReturnsAllProducts()
     {
@@ -34,6 +42,9 @@ public class ProductServiceGetManagedTests
         Assert.Equal(2, total);
     }
 
+    /// <summary>
+    /// Тест 30: Продавец видит только свои товары.
+    /// </summary>
     [Fact]
     public async Task GetManagedProductsAsync_SellerUser_ReturnsOnlyOwnedProducts()
     {
@@ -68,6 +79,9 @@ public class ProductServiceGetManagedTests
         Assert.Equal(1, total);
     }
 
+    /// <summary>
+    /// Тест 31: Пользователь без валидного userId в claims не видит товары.
+    /// </summary>
     [Fact]
     public async Task GetManagedProductsAsync_InvalidUserClaim_ReturnsNoProducts()
     {
@@ -87,6 +101,10 @@ public class ProductServiceGetManagedTests
         Assert.Equal(0, total);
     }
 
+    /// <summary>
+    /// Тест 32: Пагинация рассчитывается корректно (page, size, totalPages).
+    /// При 15 товарах и размере 10: 2 страницы, на второй — 5 товаров.
+    /// </summary>
     [Fact]
     public async Task GetManagedProductsAsync_Pagination_CalculatesCorrectly()
     {

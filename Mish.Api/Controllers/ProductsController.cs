@@ -6,12 +6,14 @@ using Mish.Api.Dtos;
 using Mish.Api.Extensions;
 using Mish.Api.Services;
 using Mish.Api.Models;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Mish.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductsController : ControllerBase // ← УБРАЛ [Authorize] С КЛАССА
+[EnableRateLimiting("fixed")]
+public class ProductsController : ControllerBase 
 {
     private readonly IProductService _productService;
 
@@ -53,6 +55,7 @@ public class ProductsController : ControllerBase // ← УБРАЛ [Authorize] �
     [HttpPost]
     [Authorize] // ← Требуется авторизация
     [RequirePermission("products.create")]
+    [EnableRateLimiting("auth")] // Применяем более строгий Rate Limiting к созданию товара
     public async Task<ActionResult<ProductDetailDto>> Create([FromForm] CreateProductRequest request, IFormFile[]? images)
     {
         var userIdClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
@@ -70,7 +73,12 @@ public class ProductsController : ControllerBase // ← УБРАЛ [Authorize] �
         }
     }
 
-
+    /// <summary>
+    /// Получить список товаров (для админов/менеджеров).
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="size"></param>
+    /// <returns></returns>
     [HttpGet("managed")]
     [Authorize]
     public async Task<ActionResult> GetManaged([FromQuery] int page = 1, [FromQuery] int size = 50)
@@ -99,6 +107,7 @@ public class ProductsController : ControllerBase // ← УБРАЛ [Authorize] �
     [HttpPut("{id:int}")]
     [Authorize]
     [RequirePermission("products.edit_any")]
+    [EnableRateLimiting("auth")] // Применяем более строгий Rate Limiting к обновлению товара
     public async Task<IActionResult> Update(int id, [FromForm] UpdateProductRequest request, IFormFile[]? images)
     {
         var success = await _productService.UpdateAsync(id, request, images, User);
@@ -110,10 +119,12 @@ public class ProductsController : ControllerBase // ← УБРАЛ [Authorize] �
     [HttpDelete("{id:int}")]
     [Authorize]
     [RequirePermission("products.delete")]
+    [EnableRateLimiting("auth")] // Применяем более строгий Rate Limiting к удалению товара
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _productService.DeleteAsync(id, User);
         if (!success) return Forbid();
         return NoContent();
     }
+    
 }

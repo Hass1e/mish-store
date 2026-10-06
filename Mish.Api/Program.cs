@@ -1,23 +1,37 @@
 using Mish.Api.Services; 
 using Microsoft.EntityFrameworkCore; 
 using Mish.Api.Data;               
-using Mish.Api.Models;
-//using Microsoft.OpenApi.Models; // ← Для кастомизации (опционально)
-using Swashbuckle.AspNetCore.SwaggerGen; // ← Обязательно для AddSwaggerGen
-using JwtBearerDefaults = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults;
 using System.Text;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Threading.Tasks;
 using Mish.Api.Extensions;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using Mish.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsDevelopment())
+{
+    var envFilePath = Path.GetFullPath(
+        Path.Combine(builder.Environment.ContentRootPath, "..", ".env"));
+    if (File.Exists(envFilePath))
+    {
+        DotNetEnv.Env.Load(envFilePath);
+        builder.Configuration.AddEnvironmentVariables();
+    }
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); // ← Без этого Swagger не заработает!
-//builder.Services.AddImageSharp(); // Добавляем поддержку ImageSharp
+builder.Services.AddOptions<AuthCookieSettings>()
+    .Bind(builder.Configuration.GetSection("AuthCookie"))
+    .Validate(settings => settings.ExpirationMinutes > 0, "AuthCookie:ExpirationMinutes должен быть больше нуля.")
+    .ValidateOnStart();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoriesService, CategoriesService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -34,15 +48,28 @@ builder.Services.AddCors(options =>
               .AllowCredentials()); 
 });
 
-// === ДОБАВЛЕНО: Регистрация SQLite ===
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=app.db"));
-
-
-// Program.cs (секция builder.Services)
+options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!);
+var jwtSecret = jwtSettings["SecretKey"];
+if (string.IsNullOrWhiteSpace(jwtSecret))
+{
+    if (!builder.Environment.IsDevelopment())
+    {
+        throw new InvalidOperationException(
+            "JwtSettings:SecretKey must be configured outside Development.");
+    }
+
+    jwtSecret = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+    builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+    {
+        ["JwtSettings:SecretKey"] = jwtSecret
+    });
+    Console.WriteLine("JwtSettings:SecretKey is empty; using a temporary development-only key.");
+}
+
+var secretKey = Encoding.UTF8.GetBytes(jwtSecret);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
 {
@@ -96,10 +123,41 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 
 
-builder.Services.AddPermissionPolicies();
+builder.Services.AddPermissionPolicies(); 
+builder.Services.AddMemoryCache(); // ← Для кэширования входов пользователей
+
+// 1. Добавляем сервис Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    // Глобальный обработчик ошибок (что возвращать, если лимит исчерпан)
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        await context.HttpContext.Response.WriteAsync("Слишком много запросов. Пожалуйста, подождите.", token);
+    };
+
+    // 2. Создаем политику "FixedWindow" (Фиксированное окно)
+    // Например: 30 запросов в минуту
+    options.AddFixedWindowLimiter(policyName: "fixed", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 40; // Количество запросов
+        limiterOptions.Window = TimeSpan.FromMinutes(1); // Временной промежуток
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0; // Сколько запросов можно поставить в очередь, если лимит почти достигнут
+    });
+
+    // Можно добавить еще политику для авторизации (более строгую)
+    options.AddSlidingWindowLimiter(policyName: "auth", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 10; // Всего попыток
+        limiterOptions.Window = TimeSpan.FromMinutes(1); 
+        limiterOptions.SegmentsPerWindow = 5;
+    });
+});
+
 
 var app = builder.Build();
-// Твой CORS middleware - оставляем!
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {
@@ -112,54 +170,23 @@ app.UseAuthentication(); // ← Сначала аутентификация (п�
 app.UseAuthorization();  // ← Потом авторизация (проверка ролей)
 
 
-// === ДОБАВЛЕНО: Автоматическое заполнение БД при старте ===
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try 
+    try
     {
         var context = services.GetRequiredService<AppDbContext>();
         await context.Database.MigrateAsync();
-        
-        if (!context.Products.Any())
-        {
-            context.Products.AddRange(
-                new Product 
-                { 
-                    Name = "Футболка Mish", 
-                    Price = 1990, 
-                    Description = "Базовая футболка", 
-                    ImageUrls = new List<string> { "/images/tshirt.jpg" }, // ✅ Массив!
-                    SKU = "TSH-001",
-                    IsActive = true,
-                    IsNew = true
-                },
-                new Product 
-                { 
-                    Name = "Худи Mish", 
-                    Price = 3490, 
-                    Description = "Тёплое худи", 
-                    ImageUrls = new List<string> { "/images/hoodie.jpg" }, // ✅ Массив!
-                    SKU = "HOO-001",
-                    IsActive = true
-                },
-                new Product 
-                { 
-                    Name = "Кепка Mish", 
-                    Price = 990, 
-                    Description = "Кепка с логотипом", 
-                    ImageUrls = new List<string> { "/images/cap.jpg" }, // ✅ Массив!
-                    SKU = "CAP-001",
-                    IsActive = true
-                }
-            );
-            await context.SaveChangesAsync();
-            Console.WriteLine("База данных успешно заполнена!");
-        }
+
+        await DbSeeder.SeedProductsAsync(context);
+        await DbSeeder.SeedPermissionsAsync(context);
+        await DbSeeder.SeedCategoriesAsync(context);
+        await DbSeeder.SeedAdminUserAsync(context, builder.Configuration["SeedAdmin:Password"]);
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Ошибка при инициализации БД: {ex.Message}");
+        Console.Error.WriteLine($"Ошибка при инициализации БД: {ex}");
+        throw;
     }
 }
 
@@ -172,16 +199,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+app.UseRateLimiter();
 
 app.MapControllers();
-
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await DbSeeder.SeedPermissionsAsync(db);
-    await DbSeeder.SeedCategoriesAsync(db);
-    
-}
+app.MapFallbackToFile("index.html");
 
 app.Run();

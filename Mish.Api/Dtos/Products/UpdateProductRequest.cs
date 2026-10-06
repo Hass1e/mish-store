@@ -1,7 +1,9 @@
 // Dtos/Products/UpdateProductRequest.cs
 namespace Mish.Api.Dtos;
 
-
+/// <summary>
+/// DTO для обновления информации о продукте. [Request]
+/// </summary>
 public class UpdateProductRequest
 {
     public string Name { get; set; } = string.Empty;
