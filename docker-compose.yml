@@ -5,14 +5,35 @@ services:
       dockerfile: Dockerfile
     container_name: mish-store
     ports:
-      - "5073:8080" # Снаружи 5073, внутри 8080
+      - "5073:8080"
     env_file:
       - .env
+    depends_on:
+      postgres:
+        condition: service_healthy # Ждем, пока БД точно запустится
     volumes:
-      - sqlite-data:/app/Data
+      # Сохраняем загруженные картинки между перезапусками!
       - uploads-data:/app/wwwroot/uploads
     restart: unless-stopped
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: mish-postgres
+    environment:
+      POSTGRES_DB: mish_store
+      POSTGRES_USER: mish_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+   # ports:
+    #  - "5433:5432"
+    volumes:
+      # Данные БД живут здесь и не пропадут при удалении контейнера
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mish_user -d mish_store"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
-  sqlite-data:
+  postgres-data:
   uploads-data:

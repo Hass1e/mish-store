@@ -13,6 +13,7 @@ RUN npx vite build --config vite.config.prod.ts
 
 # --- ЭТАП 2: Сборка ASP.NET Core                        (ИСПРАВЛЕНО НА .NET 10) ---
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS backend-build
+RUN apt-get update && apt-get install -y libgssapi-krb5-2 && rm -rf /var/lib/apt/lists/*
 WORKDIR /src
 
 # Восстанавливаем NuGet пакеты
