@@ -120,6 +120,37 @@ public class ProductServiceGetAllTests
         Assert.False(hasMore);
     }
 
+    [Fact]
+    public async Task GetAllAsync_ParentCategory_IncludesProductsFromItsSubcategories()
+    {
+        using var fixture = new ProductServiceTestFixture();
+        fixture.Context.Categories.AddRange(
+            new Category { Id = 1000, Name = "Clothing", Slug = "clothing" },
+            new Category { Id = 1001, Name = "Shirts", Slug = "shirts", ParentId = 1000 },
+            new Category { Id = 2000, Name = "Accessories", Slug = "accessories" },
+            new Category { Id = 2001, Name = "Hats", Slug = "hats", ParentId = 2000 });
+        fixture.Context.Products.AddRange(
+            new Product { Id = 1, Name = "T-shirt", CategoryId = 1001, IsActive = true },
+            new Product { Id = 2, Name = "Jacket", CategoryId = 1000, IsActive = true },
+            new Product { Id = 3, Name = "Hat", CategoryId = 2001, IsActive = true },
+            new Product { Id = 4, Name = "Inactive shirt", CategoryId = 1001, IsActive = false });
+        await fixture.Context.SaveChangesAsync();
+
+        var result = await fixture.Service.GetAllAsync(1, 20, null, categoryId: 1000);
+        var (items, total, hasMore) = ReadPage(result);
+
+        Assert.Equal(new[] { 1, 2 }, items.Select(product => product.Id).OrderBy(id => id));
+        Assert.Equal(2, total);
+        Assert.False(hasMore);
+
+        var subcategoryResult = await fixture.Service.GetAllAsync(1, 20, null, categoryId: 1001);
+        var (subcategoryItems, subcategoryTotal, _) = ReadPage(subcategoryResult);
+
+        var subcategoryProduct = Assert.Single(subcategoryItems);
+        Assert.Equal(1, subcategoryProduct.Id);
+        Assert.Equal(1, subcategoryTotal);
+    }
+
     /// <summary>
     /// Тест 21: Поиск работает без учёта регистра (hAt находит "Blue Hat").
     /// </summary>

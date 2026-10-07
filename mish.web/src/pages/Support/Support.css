@@ -1,0 +1,166 @@
+.support-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+  min-height: 100vh;
+  border-radius: 30px;
+}
+
+.support-title {
+  font-size: 2.5rem;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.support-content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.support-intro {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 50px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+.contact-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contact-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+}
+
+.contact-icon {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.contact-card h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.contact-link {
+  color: #666;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+  word-break: break-all;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.contact-link:hover {
+  color: #1a1a1a;
+}
+
+.support-info {
+  text-align: center;
+  padding: 32px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.response-time {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .support-container {
+    padding: 40px 24px;
+  }
+
+  .support-title {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+
+  .support-intro {
+    font-size: 1rem;
+    margin-bottom: 40px;
+  }
+
+  .contact-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .contact-card {
+    padding: 28px 20px;
+  }
+
+  .contact-icon {
+    font-size: 2rem;
+  }
+
+  .support-info {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .support-container {
+    padding: 30px 16px;
+  }
+
+  .support-title {
+    font-size: 1.6rem;
+  }
+
+  .support-intro {
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+  }
+
+  .contact-card {
+    border-radius: 16px;
+    padding: 24px 16px;
+  }
+
+  .contact-icon {
+    font-size: 1.8rem;
+  }
+
+  .contact-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .contact-link {
+    font-size: 0.95rem;
+  }
+
+  .response-time {
+    font-size: 1rem;
+  }
+}

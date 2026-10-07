@@ -9,6 +9,7 @@ import ScrollToTop from './components/ScrollToTop/ScrollToTop.tsx'
 import { RequirePermission } from './components/Permission/RequirePermission.tsx'
 import { ChangeRoles } from './pages/AdminTool/ChangeRoles/ChangeRoles.tsx'
 import { CartProvider } from './pages/Cart/components/CartContext.tsx'
+
 // 1. Динамические импорты (загрузятся только при переходе на страницу)
 const Home = lazy(() => import('./components/hero_banner/HeroBanner__mass.tsx').then(m => ({ default: m.Home })))
 const CatalogHeader = lazy(() => import('./components/ProductCard/ProductCard_mass.tsx').then(m => ({ default: m.Catalog })))
@@ -23,6 +24,9 @@ const Products = lazy(() => import('./pages/Products.tsx').then(m => ({ default:
 const AdminOrders = lazy(() => import('./pages/AdminTool/DeliveryStatus/AdminOrders.tsx').then(m => ({ default: m.AdminOrders as ComponentType })))
 const Catalog = lazy(() => import('../src/pages/Сatalog/Catalog.tsx').then(m => ({ default: m.Catalog as ComponentType })))
 const CategoryManager = lazy(() => import('./pages/AdminTool/CreateCategory/CategoryManager/CategoryManager.tsx').then(m => ({ default: m.CategoryManager as ComponentType })))
+const FAQ = lazy(()=> import('./pages/FAQ/FAQ.tsx'))
+const Support = lazy(()=> import('./pages/Support/Support.tsx'))
+
 
 // Компонент-заглушка, пока страница скачивается
 const PageLoader = () => <div style={{ minHeight: '50vh' }}>Загрузка...</div>
@@ -75,6 +79,14 @@ const router = createBrowserRouter([
                     <Catalog />
                 </Suspense>
                 ),
+            },
+            {
+                path: "faq",
+                element: <Suspense fallback={<PageLoader />}><FAQ /></Suspense>,
+            },
+            {
+                path: "support",
+                element: <Suspense fallback={<PageLoader />}><Support /></Suspense>,
             },
 
 
@@ -164,7 +176,6 @@ function Layout() {
   return (
     <CartProvider>
       <Header />
-        <title>ой крутой</title>
       <Outlet />
       <ScrollRestoration getKey={(location) => location.pathname} />
       <ScrollToTop />

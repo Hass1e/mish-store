@@ -147,4 +147,17 @@
   .sort-select {
     width: 100%;
   }
+
+
+
+@media (max-width: 500px) {
+    .catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+
+}
+
 }

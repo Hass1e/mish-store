@@ -27,6 +27,7 @@ export function Header() {
 
     return (
         <header className="header">
+            <title> M I S H</title>
             <div className="header__container">
                 <Link to="/" className="header__logo">
                     M I S H

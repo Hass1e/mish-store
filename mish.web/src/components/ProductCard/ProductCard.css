@@ -45,7 +45,7 @@
   
   @media (max-width: 500px) {
     width: 150px; 
-    aspect-ratio: 3 / 5.5;
+    aspect-ratio: 1 / 2;
      border: 3px solid #fff;
   }
 }

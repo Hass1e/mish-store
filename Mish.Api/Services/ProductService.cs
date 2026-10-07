@@ -42,7 +42,12 @@ public class ProductService : IProductService
 
         if (categoryId.HasValue)
         {
-            query = query.Where(p => p.CategoryId == categoryId.Value);
+            query = query.Where(p =>
+                p.CategoryId == categoryId.Value ||
+                (_context.Categories.Any(parent =>
+                    parent.Id == categoryId.Value && parent.ParentId == null) &&
+                 _context.Categories.Any(category =>
+                    category.Id == p.CategoryId && category.ParentId == categoryId.Value)));
         }
 
         if (!string.IsNullOrWhiteSpace(search))
