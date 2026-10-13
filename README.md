@@ -126,4 +126,10 @@ docker-compose up --build -d
 ```
 </details>
 
+## 👤 Автор
+
+**Александр**  
+Fullstack Developer (C# / ASP.NET Core / React)
+
+-📱 [Telegram](https://t.me/ES_Deuterium) 
 
